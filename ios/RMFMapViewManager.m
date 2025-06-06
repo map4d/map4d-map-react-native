@@ -22,7 +22,6 @@
 #import <React/RCTConvert+CoreLocation.h>
 #import "RCTConvert+Map4dMap.h"
 #import "RMFEventResponse.h"
-#import "Clustering/MFClusterItemImpl.h"
 
 @interface RMFMapViewManager () <MFMapViewDelegate>
 
@@ -295,13 +294,6 @@ RCT_EXPORT_METHOD(setAllGesturesEnabled:(nonnull NSNumber *)reactTag
 - (BOOL)mapview:(MFMapView *)mapView didTapMarker:(MFMarker *)marker {
   RMFMapView* map = (RMFMapView*)mapView;
 
-  if ([marker.userData conformsToProtocol:@protocol(MFClusterItem)]) {
-    MFClusterItemImpl* item = (MFClusterItemImpl*)marker.userData;
-    CLLocationCoordinate2D tapLocation = [map.projection coordinateForPoint:map.lastTapPixel];
-    [item didTapAtPixel:map.lastTapPixel location:tapLocation];
-    return NO;
-  }
-
   RMFMarkerMap4d * rMarker = (RMFMarkerMap4d *) marker;
   [rMarker.reactMarker didTapAtPixel:map.lastTapPixel];
   return NO;
@@ -333,13 +325,6 @@ RCT_EXPORT_METHOD(setAllGesturesEnabled:(nonnull NSNumber *)reactTag
 
 - (void)mapview:(MFMapView *)mapView didTapInfoWindowOfMarker:(MFMarker *)marker {
   RMFMapView* map = (RMFMapView*)mapView;
-
-  if ([marker.userData conformsToProtocol:@protocol(MFClusterItem)]) {
-    MFClusterItemImpl* item = (MFClusterItemImpl*)marker.userData;
-    CLLocationCoordinate2D tapLocation = [map.projection coordinateForPoint:map.lastTapPixel];
-    [item didTapInfoWindowAtPixel:map.lastTapPixel location:tapLocation];
-    return;
-  }
 
   RMFMarkerMap4d * rMarker = (RMFMarkerMap4d *) marker;
   [rMarker.reactMarker didTapInfoWindowAtPixel:map.lastTapPixel];

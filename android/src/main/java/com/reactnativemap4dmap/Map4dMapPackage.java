@@ -7,8 +7,6 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
-import com.reactnativemap4dmap.clustering.RMFClusterItemManager;
-import com.reactnativemap4dmap.clustering.RMFMarkerClusterManager;
 
 public class Map4dMapPackage implements ReactPackage {
     @Override
@@ -31,9 +29,7 @@ public class Map4dMapPackage implements ReactPackage {
         new RMFPolygonManager(reactContext),
         new RMFBuildingManager(),
         new RMFDirectionsRendererManager(reactContext),
-        new RMFTileOverlayManager(),
-        new RMFMarkerClusterManager(),
-        new RMFClusterItemManager()
+        new RMFTileOverlayManager()
       );
     }
 }
