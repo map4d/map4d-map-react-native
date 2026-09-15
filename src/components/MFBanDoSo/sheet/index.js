@@ -32,6 +32,7 @@ export {
   ZONE_PROJECT_KINDS,
 } from './constants';
 export { InvestmentSheet } from './InvestmentSheet';
+export { SHEET_MARKER_ICON } from './markerIcon';
 export { resolveInfraDetailInfo } from './infraInfo';
 export { resolveProvinceInvestmentInfo } from './investmentInfo';
 export {
