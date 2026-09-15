@@ -4,6 +4,7 @@ import {
   SHEET_HALF_SNAP_RATIO,
   SHEET_MARKER_ID,
 } from '../sheet/constants';
+import { SHEET_MARKER_ICON } from '../sheet/markerIcon';
 import { getRouteUrl, getSuggestUrl } from './api';
 import {
   EMPTY_DIRECTIONS_EDIT,
@@ -318,6 +319,9 @@ function closeDirections(self) {
     self._addMarker({
       id: SHEET_MARKER_ID,
       coordinate: self._sheetPin,
+      icon: SHEET_MARKER_ICON,
+      anchor: { x: 0.5, y: 1.0 },
+      zIndex: ZONE_HIGHLIGHT_Z_INDEX,
     });
   }
 

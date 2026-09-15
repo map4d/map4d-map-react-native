@@ -50,6 +50,7 @@ import {
   SHEET_KIND_INFRA,
   SHEET_KIND_ZONE,
   SHEET_LOADING_TEXT,
+  SHEET_MARKER_ICON,
   SHEET_MARKER_ID,
   SHEET_OPEN_DURATION_MS,
   SHEET_TITLE,
@@ -278,7 +279,13 @@ class MFBanDoSo extends MFMapView {
         // The detail's own point wins over whatever the result carried, the
         // same way a zone's pin replaces the point that opened its sheet.
         this._sheetPin = info.pin;
-        this._addMarker({ id: SHEET_MARKER_ID, coordinate: info.pin });
+        this._addMarker({
+          id: SHEET_MARKER_ID,
+          coordinate: info.pin,
+          icon: SHEET_MARKER_ICON,
+          anchor: { x: 0.5, y: 1.0 },
+          zIndex: ZONE_HIGHLIGHT_Z_INDEX,
+        });
         this._fitCameraToInfra(info.pin);
       }
 
@@ -416,6 +423,9 @@ class MFBanDoSo extends MFMapView {
       this._addMarker({
         id: SHEET_MARKER_ID,
         coordinate: this._sheetPin,
+        icon: SHEET_MARKER_ICON,
+        anchor: { x: 0.5, y: 1.0 },
+        zIndex: ZONE_HIGHLIGHT_Z_INDEX,
       });
     } else {
       // Nothing to point at yet — a zone picked from search, whose pin only
@@ -447,6 +457,9 @@ class MFBanDoSo extends MFMapView {
       this._addMarker({
         id: SHEET_MARKER_ID,
         coordinate: info.pin,
+        icon: SHEET_MARKER_ICON,
+        anchor: { x: 0.5, y: 1.0 },
+        zIndex: ZONE_HIGHLIGHT_Z_INDEX,
       });
     }
 
