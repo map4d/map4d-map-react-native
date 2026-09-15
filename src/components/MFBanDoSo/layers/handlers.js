@@ -1,4 +1,7 @@
-import { buildGeojsonStyle } from '../../internal/GeojsonStyleUtils';
+import {
+  buildGeojsonStyle,
+  createBaseStyle,
+} from '../../internal/GeojsonStyleUtils';
 import { Animated, Easing } from 'react-native';
 import {
   DRAWER_CLOSE_DURATION_MS,
@@ -146,18 +149,85 @@ function snapSelectorOpen(self) {
   }).start();
 }
 
+// A ready map is a built map, not a styled one: on iOS onMapReady fires on the
+// first drawn frame, so the SDK can still answer with nothing while the style
+// is being parsed. Retried a few times before the bundled roadmap is accepted
+// as the answer, since that choice sticks for the rest of the session.
+const MAP_STYLE_RETRY_DELAY_MS = 300;
+const MAP_STYLE_RETRY_LIMIT = 5;
+
+function isUsableMapStyle(mapStyle) {
+  if (typeof mapStyle === 'string') {
+    return mapStyle.trim().length > 0;
+  }
+
+  return mapStyle != null && typeof mapStyle === 'object';
+}
+
+// The style the map itself is showing, read from the SDK once the map is ready.
+// Read once and kept: from the first sync on, the SDK holds the style we wrote,
+// so reading again would build on our own output.
+async function loadMapStyle(self) {
+  if (self._isMapStyleLoaded || self._isMapStyleLoading || !self._isMounted) {
+    return;
+  }
+
+  self._isMapStyleLoading = true;
+  let mapStyle = null;
+
+  try {
+    mapStyle = await self.getMapStyle();
+  } catch (error) {
+    // Nothing to build on but the bundled roadmap, which createBaseStyle
+    // falls back to on a null style.
+    console.warn('Cannot read map style', error);
+  }
+
+  self._isMapStyleLoading = false;
+
+  if (!self._isMounted) {
+    return;
+  }
+
+  if (
+    !isUsableMapStyle(mapStyle) &&
+    self._mapStyleAttempts < MAP_STYLE_RETRY_LIMIT
+  ) {
+    self._mapStyleAttempts += 1;
+    self._mapStyleRetryTimer = setTimeout(
+      () => loadMapStyle(self),
+      MAP_STYLE_RETRY_DELAY_MS
+    );
+    return;
+  }
+
+  self._sdkMapStyle = isUsableMapStyle(mapStyle) ? mapStyle : null;
+  self._isMapStyleLoaded = true;
+  self._syncGeojsonStyle();
+}
+
+function cancelMapStyleRetry(self) {
+  clearTimeout(self._mapStyleRetryTimer);
+  self._mapStyleRetryTimer = null;
+}
+
 function syncGeojsonStyle(self) {
   if (!self.state.isReady) {
     return;
   }
 
-  const items = getSelectedCategoryItems(self.state.categoryItems);
+  // A mapStyle the caller gave wins and needs no wait; without one the SDK's
+  // style has to arrive first — loadMapStyle syncs again once it does.
+  if (self.props.mapStyle == null && !self._isMapStyleLoaded) {
+    return;
+  }
 
-  const geojsonStyle = buildGeojsonStyle(
-    self.props.mapStyle,
-    getSourceUrl(self.props.isStaging),
-    items
+  const baseStyle = createBaseStyle(
+    self.props.mapStyle ?? self._sdkMapStyle,
+    getSourceUrl(self.props.isStaging)
   );
+  const items = getSelectedCategoryItems(self.state.categoryItems);
+  const geojsonStyle = buildGeojsonStyle(baseStyle, items);
 
   if (!geojsonStyle || geojsonStyle === self._appliedGeojsonStyle) {
     return;
@@ -178,6 +248,14 @@ function attachLayerHandlers(self) {
   // push it again.
   self._appliedGeojsonStyle = null;
   self._categoryRequestId = 0;
+  // The SDK's own style, and whether the read has finished.
+  self._sdkMapStyle = null;
+  self._isMapStyleLoaded = false;
+  self._isMapStyleLoading = false;
+  self._mapStyleAttempts = 0;
+  self._mapStyleRetryTimer = null;
+  self._cancelMapStyleRetry = () => cancelMapStyleRetry(self);
+  self._loadMapStyle = () => loadMapStyle(self);
   self._loadCategoryItems = () => loadCategoryItems(self);
   self._toggleItem = (targetKey, targetIndex) =>
     toggleItem(self, targetKey, targetIndex);

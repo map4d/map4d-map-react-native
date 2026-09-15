@@ -18,7 +18,7 @@ What this means:
 - On React Native apps with New Architecture enabled, map native module lookup works with TurboModule resolution.
 - On older React Native versions, the library keeps using legacy bridge resolution.
 - No public JavaScript API changes are required for existing apps.
-- Native `Map4dMap` APIs (`getCamera`, `getBounds`, `getMyLocation`, `pointForCoordinate`, `coordinateForPoint`, `cameraForBounds`) are implemented in both Android and iOS modules to align with the TurboModule spec.
+- Native `Map4dMap` APIs (`getCamera`, `getBounds`, `getMyLocation`, `getMapStyle`, `pointForCoordinate`, `coordinateForPoint`, `cameraForBounds`) are implemented in both Android and iOS modules to align with the TurboModule spec.
 
 ## Usage
 

@@ -6,29 +6,45 @@ function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+// The bundled roadmap is the last resort: it is used only when neither the caller's
+// style nor the style read back from the map itself could be parsed. It is cloned
+// lazily so the common path does not pay for a copy it throws away.
 function toStyleObject(mapStyle) {
-  const defaultStyle = deepClone(defaultRoadmapStyle);
-  if (mapStyle == null) {
-    return defaultStyle;
-  }
-
-  if (typeof mapStyle === 'string') {
+  if (mapStyle != null) {
     try {
-      return JSON.parse(mapStyle);
+      if (typeof mapStyle === 'string') {
+        return JSON.parse(mapStyle);
+      }
+
+      if (typeof mapStyle === 'object' && !Array.isArray(mapStyle)) {
+        return deepClone(mapStyle);
+      }
     } catch (error) {
-      return defaultStyle;
+      // Unusable style, fall through to the bundled roadmap.
     }
   }
 
-  if (typeof mapStyle === 'object' && !Array.isArray(mapStyle)) {
-    try {
-      return deepClone(mapStyle);
-    } catch (error) {
-      return defaultStyle;
-    }
-  }
+  return deepClone(defaultRoadmapStyle);
+}
 
-  return defaultStyle;
+// Turns a raw style — the caller's, the map's own, or the bundled roadmap — into the
+// base to build on: the geojson source is re-declared and every layer bound to it is
+// dropped, so nothing we wrote during an earlier sync survives.
+function createBaseStyle(mapStyle, sourceUrl) {
+  const style = toStyleObject(mapStyle);
+  const layers = Array.isArray(style.layers) ? style.layers : [];
+
+  return {
+    ...style,
+    sources: {
+      ...style.sources,
+      [GEOJSON_SOURCE_NAME]: {
+        type: 'vector',
+        url: sourceUrl,
+      },
+    },
+    layers: layers.filter((layer) => layer?.source !== GEOJSON_SOURCE_NAME),
+  };
 }
 
 function generateLayerStyle(source, items) {
@@ -101,46 +117,21 @@ function createCategoryItemsSignature(items) {
   return JSON.stringify(normalized);
 }
 
-function buildGeojsonStyle(mapStyle, sourceUrl, items) {
-  const result = toStyleObject(mapStyle);
-  result.sources = result.sources || {};
-
-  const defaultGeojsonSource =
-    typeof result.sources[GEOJSON_SOURCE_NAME] === 'object' &&
-    result.sources[GEOJSON_SOURCE_NAME] !== null
-      ? result.sources[GEOJSON_SOURCE_NAME]
-      : {};
-
-  result.sources[GEOJSON_SOURCE_NAME] = {
-    ...defaultGeojsonSource,
-    type: 'vector',
-  };
-
-  if (typeof sourceUrl === 'string' && sourceUrl.trim().length > 0) {
-    result.sources[GEOJSON_SOURCE_NAME].url = sourceUrl;
-  }
-
+// Expects a style from createBaseStyle, so all that is left is dropping the poi
+// layers the map ships with and splicing ours in.
+function buildGeojsonStyle(style, items) {
   const normalizeItems = Array.isArray(items) ? items : [];
   const layerStyle = generateLayerStyle(GEOJSON_SOURCE_NAME, normalizeItems);
 
-  const baseLayers = (Array.isArray(result.layers) ? result.layers : []).filter(
-    (layer) => {
-      if (!layer || typeof layer !== 'object') {
-        return false;
-      }
-
-      if (layer.source_layer === 'pois') {
-        return false;
-      }
-
-      const metadata = layer.metadata;
-      return !(metadata && metadata.managedBy === 'MFBanDoSo');
-    }
+  const baseLayers = (Array.isArray(style.layers) ? style.layers : []).filter(
+    (layer) =>
+      layer && typeof layer === 'object' && layer.source_layer !== 'pois'
   );
 
-  result.layers = baseLayers.concat(layerStyle);
-
-  return JSON.stringify(result);
+  return JSON.stringify({
+    ...style,
+    layers: baseLayers.concat(layerStyle),
+  });
 }
 
-export { buildGeojsonStyle, createCategoryItemsSignature };
+export { buildGeojsonStyle, createCategoryItemsSignature, createBaseStyle };

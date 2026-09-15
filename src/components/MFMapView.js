@@ -428,6 +428,15 @@ class MFMapView extends React.Component {
     return Promise.reject('Function not supported on this platform');
   }
 
+  getMapStyle() {
+    if (Platform.OS === 'android') {
+      return this._runMap4dMapModuleMethod('getMapStyle', [this._getHandle()]);
+    } else if (Platform.OS === 'ios') {
+      return this._runCommand('getMapStyle', []);
+    }
+    return Promise.reject('Function not supported on this platform');
+  }
+
   animateCamera(camera) {
     this._runCommand('animateCamera', [camera]);
   }
