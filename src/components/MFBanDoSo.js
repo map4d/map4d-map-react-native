@@ -225,6 +225,12 @@ class MFBanDoSo extends MFMapView {
     const mapStyleChanged = prevProps.mapStyle !== this.props.mapStyle;
     const isStagingChanged = prevProps.isStaging !== this.props.isStaging;
 
+    if (mapReadyChanged && this.state.isReady) {
+      // The map's own style is what the layers get spliced into, so it is read
+      // before the first sync writes over it.
+      this._loadMapStyle();
+    }
+
     if (isStagingChanged) {
       this._loadCategoryItems();
       this._loadLegendItems();
@@ -253,6 +259,7 @@ class MFBanDoSo extends MFMapView {
     this._isMounted = false;
     this._cancelPendingSearch();
     this._cancelPendingSuggest();
+    this._cancelMapStyleRetry();
   }
 
   async _loadInfraInfo(infraId) {

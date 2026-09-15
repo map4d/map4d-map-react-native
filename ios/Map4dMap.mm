@@ -72,6 +72,15 @@ RCT_EXPORT_METHOD(getMyLocation:(double)reactTag
     }];
 }
 
+RCT_EXPORT_METHOD(getMapStyle:(double)reactTag
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject)
+{
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
+        resolve(mapView.mapStyleJSON ?: [NSNull null]);
+    }];
+}
+
 RCT_EXPORT_METHOD(pointForCoordinate:(double)reactTag
                   coordinate:(NSDictionary *)json
                      resolve:(RCTPromiseResolveBlock)resolve
