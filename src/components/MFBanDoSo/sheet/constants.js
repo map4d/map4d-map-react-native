@@ -27,6 +27,7 @@ const SHEET_INDUSTRIAL_ZONES_TITLE = 'Khu công nghiệp';
 const SHEET_FOCUS_ACTION_LABEL = 'Xem tỉnh trên bản đồ';
 // Which body the sheet draws: a province by default, a zone when a KCN/KKT
 // feature was tapped.
+const SHEET_KIND_PROVINCE = 'province';
 const SHEET_KIND_ZONE = 'zone';
 const SHEET_KIND_INFRA = 'infra';
 
@@ -109,6 +110,7 @@ export {
   SHEET_INDUSTRIAL_ZONES_TITLE,
   SHEET_INITIAL_SNAP_RATIO,
   SHEET_KIND_INFRA,
+  SHEET_KIND_PROVINCE,
   SHEET_INFRA_TITLE,
   SHEET_INFRA_LOADING_TEXT,
   SHEET_INFRA_EMPTY_TEXT,

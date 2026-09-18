@@ -3,6 +3,7 @@ import {
   SHEET_FULL_SNAP_RATIO,
   SHEET_HALF_SNAP_RATIO,
   SHEET_MARKER_ID,
+  ZONE_HIGHLIGHT_Z_INDEX,
 } from '../sheet/constants';
 import { SHEET_MARKER_ICON } from '../sheet/markerIcon';
 import { getRouteUrl, getSuggestUrl } from './api';

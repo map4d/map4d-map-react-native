@@ -48,6 +48,7 @@ import {
   SHEET_INFRA_LOADING_TEXT,
   SHEET_INFRA_TITLE,
   SHEET_KIND_INFRA,
+  SHEET_KIND_PROVINCE,
   SHEET_KIND_ZONE,
   SHEET_LOADING_TEXT,
   SHEET_MARKER_ICON,
@@ -80,7 +81,6 @@ import {
 } from './extends/area/AreaFocusGeometryUtils';
 import { MFMapView } from './MFMapView';
 
-const SHEET_KIND_PROVINCE = 'province';
 // Handed to the drawer on the renders that skip the grouping work.
 const EMPTY_GROUP_SECTIONS = [];
 
@@ -218,7 +218,6 @@ class MFBanDoSo extends MFMapView {
     this._isMounted = true;
     this._loadCategoryItems();
     this._loadLegendItems();
-    this._syncGeojsonStyle();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -504,6 +503,7 @@ class MFBanDoSo extends MFMapView {
       isSheetLoading: true,
       projectsKind: null,
       zoneProjects: [],
+      isZoneProjectsLoading: false,
       isDirectionsVisible: false,
       directionsRoute: null,
       ...EMPTY_DIRECTIONS_EDIT,
@@ -589,25 +589,27 @@ class MFBanDoSo extends MFMapView {
    */
   _openZoneProjects(kind) {
     const zoneId = this.state.sheetInfo?.id;
-    const url = getZoneProjectsUrl(this.props.isStaging, zoneId, kind);
+    const config = ZONE_PROJECT_KINDS[kind];
 
-    if (zoneId == null || !url) {
+    if (zoneId == null || !config) {
       return;
     }
 
     this.setState({ projectsKind: kind });
-    this._loadZoneProjects(url, kind);
+    this._loadZoneProjects(
+      getZoneProjectsUrl(this.props.isStaging, zoneId, kind),
+      config.emptyText
+    );
   }
 
   _closeZoneProjects() {
     this._zoneProjectsRequestId += 1;
-    this.setState({ projectsKind: null });
+    this.setState({ projectsKind: null, isZoneProjectsLoading: false });
   }
 
-  async _loadZoneProjects(url, kind) {
+  async _loadZoneProjects(url, emptyText) {
     const requestId = this._zoneProjectsRequestId + 1;
     this._zoneProjectsRequestId = requestId;
-    const emptyText = ZONE_PROJECT_KINDS[kind].emptyText;
 
     this.setState({
       zoneProjects: [],
@@ -714,6 +716,7 @@ class MFBanDoSo extends MFMapView {
           sheetSnapValue: SHEET_INITIAL_SNAP_RATIO,
           projectsKind: null,
           zoneProjects: [],
+          isZoneProjectsLoading: false,
           isDirectionsVisible: false,
           directionsRoute: null,
           directionsOrigin: null,
@@ -835,7 +838,8 @@ class MFBanDoSo extends MFMapView {
       return;
     }
 
-    if (Math.abs(bearing - this.state.mapBearing) >= 0.5) {
+    const turned = Math.abs(bearing - this.state.mapBearing) % 360;
+    if (Math.min(turned, 360 - turned) >= 0.5) {
       this.setState({ mapBearing: bearing });
     }
   }
@@ -868,7 +872,6 @@ class MFBanDoSo extends MFMapView {
     const legendGroupSections = this.state.legendSections;
     const hasItems = Array.isArray(items) && items.length > 0;
     const hasLegendItems = legendGroupSections.length > 0;
-    const showLayerButton = hasItems;
     const showSelector = this.state.isSelectorMounted && hasItems;
     // Grouping walks the items and sorts them, and only the drawer reads the
     // result — no reason to do it on the renders where the drawer is closed,
@@ -880,10 +883,7 @@ class MFBanDoSo extends MFMapView {
           this.state.groupOrderedKeys
         )
       : EMPTY_GROUP_SECTIONS;
-    const showLegendButton = hasLegendItems;
     const showLegend = this.state.isLegendMounted && hasLegendItems;
-    const selectorTitle = SELECTOR_TITLE;
-    const legendTitle = LEGEND_TITLE;
     const isZoneSheet = this.state.sheetKind === SHEET_KIND_ZONE;
     const projectsConfig = ZONE_PROJECT_KINDS[this.state.projectsKind];
     const showProjects = isZoneSheet && projectsConfig != null;
@@ -947,9 +947,7 @@ class MFBanDoSo extends MFMapView {
       zoneName: this.state.sheetInfo?.name,
       loading: this.state.isZoneProjectsLoading,
       statusText: this.state.zoneProjectsStatusText,
-      projects: Array.isArray(this.state.zoneProjects)
-        ? this.state.zoneProjects
-        : [],
+      projects: this.state.zoneProjects,
     };
     const pickHintText =
       pickingEndpoint === DIRECTIONS_ENDPOINT_ORIGIN
@@ -961,12 +959,12 @@ class MFBanDoSo extends MFMapView {
         {super.render()}
         <View style={overlayRootStyle} pointerEvents="box-none">
           <LayerButton
-            show={showLayerButton}
+            show={hasItems}
             isActive={this.state.isSelectorVisible}
             onPress={this._toggleSelectorVisibility}
           />
           <LegendButton
-            show={showLegendButton}
+            show={hasLegendItems}
             isActive={this.state.isLegendVisible}
             onPress={this._toggleLegendVisibility}
           />
@@ -995,7 +993,7 @@ class MFBanDoSo extends MFMapView {
           />
           <SelectorDrawer
             show={showSelector}
-            title={selectorTitle}
+            title={SELECTOR_TITLE}
             groupSections={groupSections}
             expandedGroupKeys={this.state.expandedGroupKeys}
             dragAnim={this._selectorAnim}
@@ -1009,7 +1007,7 @@ class MFBanDoSo extends MFMapView {
           />
           <LegendDrawer
             show={showLegend}
-            title={legendTitle}
+            title={LEGEND_TITLE}
             groupSections={legendGroupSections}
             dragAnim={this._legendAnim}
             backdropAnimatedStyle={this._legendBackdropStyle}
