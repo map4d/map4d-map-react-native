@@ -8,6 +8,7 @@ import {
   DIRECTIONS_PICK_DESTINATION_TEXT,
   DIRECTIONS_PICK_ORIGIN_TEXT,
   EMPTY_DIRECTIONS_EDIT,
+  EMPTY_DIRECTIONS_ROUTES,
   PickOriginBanner,
 } from './MFBanDoSo/directions';
 import { attachDirectionsHandlers } from './MFBanDoSo/directions/handlers';
@@ -177,7 +178,7 @@ class MFBanDoSo extends MFMapView {
       isSearchOpen: false,
       isDirectionsVisible: false,
       isDirectionsLoading: false,
-      directionsRoute: null,
+      ...EMPTY_DIRECTIONS_ROUTES,
       directionsStatusText: DIRECTIONS_LOADING_TEXT,
       directionsOrigin: null,
       directionsDestination: null,
@@ -505,7 +506,7 @@ class MFBanDoSo extends MFMapView {
       zoneProjects: [],
       isZoneProjectsLoading: false,
       isDirectionsVisible: false,
-      directionsRoute: null,
+      ...EMPTY_DIRECTIONS_ROUTES,
       ...EMPTY_DIRECTIONS_EDIT,
     });
 
@@ -718,7 +719,7 @@ class MFBanDoSo extends MFMapView {
           zoneProjects: [],
           isZoneProjectsLoading: false,
           isDirectionsVisible: false,
-          directionsRoute: null,
+          ...EMPTY_DIRECTIONS_ROUTES,
           directionsOrigin: null,
           directionsDestination: null,
           pickingEndpoint: null,
@@ -912,6 +913,11 @@ class MFBanDoSo extends MFMapView {
         }
       : sharedStyles.mapOverlayRoot;
     const pickingEndpoint = this.state.pickingEndpoint;
+    const directionsRoutes = this.state.directionsRoutes;
+    const activeRoute =
+      directionsRoutes.find(
+        (item) => item.index === this.state.directionsRouteIndex
+      ) ?? null;
     // Nothing to turn around until both ends are known.
     const canSwapEndpoints =
       this.state.directionsOrigin != null &&
@@ -923,7 +929,9 @@ class MFBanDoSo extends MFMapView {
     const directions = {
       loading: this.state.isDirectionsLoading,
       statusText: this.state.directionsStatusText,
-      route: this.state.directionsRoute,
+      routes: directionsRoutes,
+      route: activeRoute,
+      activeRouteIndex: this.state.directionsRouteIndex,
       mode: this.state.directionsMode,
       originText: this.state.directionsOrigin?.label,
       destinationText: this.state.directionsDestination?.label,
@@ -939,6 +947,7 @@ class MFBanDoSo extends MFMapView {
       onChangeQuery: this._onDirectionsQueryChange,
       onFocusEndpoint: this._onDirectionsEndpointFocus,
       onSelectSuggestion: this._onSelectDirectionsSuggestion,
+      onSelectRoute: this._selectDirectionsRoute,
     };
     // Same bundle for the drilled-down project list. The zone's name is part
     // of it because the list heads itself with it, not because the sheet has

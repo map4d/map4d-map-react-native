@@ -73,6 +73,53 @@ const directionsStyles = StyleSheet.create({
     fontWeight: '700',
     color: '#fca5a5',
   },
+  // The alternatives, laid out as a wrapping row rather than a scroller: the
+  // service answers with two or three, and a horizontal scroll inside the sheet
+  // fights the sheet's own drag.
+  directionsRoutePicker: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  directionsRouteChip: {
+    minWidth: 120,
+    marginRight: 8,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#f9fafb',
+  },
+  directionsRouteChipActive: {
+    borderColor: '#1d4ed8',
+    backgroundColor: '#eff6ff',
+  },
+  directionsRouteChipLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+  },
+  directionsRouteChipLabelActive: {
+    color: '#1d4ed8',
+  },
+  directionsRouteChipDuration: {
+    marginTop: 2,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#374151',
+  },
+  directionsRouteChipDurationActive: {
+    color: '#15803d',
+  },
+  directionsRouteChipMeta: {
+    marginTop: 2,
+    fontSize: 12,
+    color: '#9ca3af',
+  },
   directionsSummary: {
     paddingHorizontal: 16,
     paddingTop: 14,

@@ -6,6 +6,7 @@ export {
   DIRECTIONS_PICK_DESTINATION_TEXT,
   DIRECTIONS_PICK_ORIGIN_TEXT,
   EMPTY_DIRECTIONS_EDIT,
+  EMPTY_DIRECTIONS_ROUTES,
 } from './constants';
 export { DirectionsBody } from './DirectionsBody';
 export { PickOriginBanner } from './PickOriginBanner';
