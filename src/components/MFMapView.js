@@ -315,6 +315,27 @@ class MFMapView extends React.Component {
     });
   }
 
+  /**
+   * Switches which of the drawn routes is the active one. The payload the
+   * renderer already holds is left alone: only the index changes.
+   */
+  _setDirectionsActiveIndex(index) {
+    this.setState((prevState) => {
+      const managed = prevState.managedDirections;
+
+      if (!managed || managed.options.activedIndex === index) {
+        return null;
+      }
+
+      return {
+        managedDirections: {
+          ...managed,
+          options: { ...managed.options, activedIndex: index },
+        },
+      };
+    });
+  }
+
   _clearDirections() {
     if (this.state.managedDirections == null) {
       return;

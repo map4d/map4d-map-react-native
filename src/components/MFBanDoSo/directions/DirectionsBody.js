@@ -16,6 +16,8 @@ import {
   DIRECTIONS_ORIGIN_LABEL,
   DIRECTIONS_ORIGIN_PLACEHOLDER,
   DIRECTIONS_PICK_ON_MAP_LABEL,
+  DIRECTIONS_ROUTES_TITLE,
+  DIRECTIONS_ROUTE_LABEL_PREFIX,
   DIRECTIONS_STEPS_TITLE,
   DIRECTIONS_SUGGEST_EMPTY_TEXT,
   DIRECTIONS_SUGGEST_LOADING_TEXT,
@@ -153,6 +155,72 @@ function SuggestionList({ loading, items, onSelect }) {
   );
 }
 
+/**
+ * The alternatives the service answered with. Only drawn when there is more
+ * than one: with a single route the chip would say what the summary below it
+ * already says.
+ */
+function RoutePicker({ routes, activeIndex, onSelectRoute }) {
+  if (routes.length < 2) {
+    return null;
+  }
+
+  return (
+    <React.Fragment>
+      <View style={sharedStyles.section}>
+        <Text style={sharedStyles.sectionTitle}>{DIRECTIONS_ROUTES_TITLE}</Text>
+      </View>
+      <View style={directionsStyles.directionsRoutePicker}>
+        {routes.map((route, position) => {
+          const isActive = route.index === activeIndex;
+          const meta = route.summary
+            ? [route.distanceText, `Qua ${route.summary}`]
+            : [route.distanceText];
+
+          return (
+            <Pressable
+              key={route.key}
+              style={[
+                directionsStyles.directionsRouteChip,
+                isActive && directionsStyles.directionsRouteChipActive,
+              ]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isActive }}
+              onPress={() => onSelectRoute(route.index)}
+            >
+              <Text
+                style={[
+                  directionsStyles.directionsRouteChipLabel,
+                  isActive && directionsStyles.directionsRouteChipLabelActive,
+                ]}
+              >
+                {`${DIRECTIONS_ROUTE_LABEL_PREFIX} ${position + 1}`}
+              </Text>
+              {route.durationText ? (
+                <Text
+                  style={[
+                    directionsStyles.directionsRouteChipDuration,
+                    isActive &&
+                      directionsStyles.directionsRouteChipDurationActive,
+                  ]}
+                >
+                  {route.durationText}
+                </Text>
+              ) : null}
+              <Text
+                style={directionsStyles.directionsRouteChipMeta}
+                numberOfLines={1}
+              >
+                {meta.filter((part) => part).join(' · ')}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </React.Fragment>
+  );
+}
+
 function DirectionsSummary({ route }) {
   return (
     <View style={directionsStyles.directionsSummary}>
@@ -201,7 +269,9 @@ function DirectionsStep({ step }) {
 function DirectionsBody({
   loading,
   statusText,
+  routes,
   route,
+  activeRouteIndex,
   mode,
   originText,
   destinationText,
@@ -217,8 +287,10 @@ function DirectionsBody({
   onChangeQuery,
   onFocusEndpoint,
   onSelectSuggestion,
+  onSelectRoute,
 }) {
   const steps = route && Array.isArray(route.steps) ? route.steps : [];
+  const routeOptions = Array.isArray(routes) ? routes : [];
   // While a field is being typed into, the suggestions take the panel. What is
   // below them describes the endpoints as they stand, not as they are being
   // changed — and the keyboard would bury it anyway.
@@ -288,6 +360,12 @@ function DirectionsBody({
               <Text style={sharedStyles.statusText}>{statusText}</Text>
             </View>
           ) : null}
+
+          <RoutePicker
+            routes={routeOptions}
+            activeIndex={activeRouteIndex}
+            onSelectRoute={onSelectRoute}
+          />
 
           {route ? <DirectionsSummary route={route} /> : null}
 

@@ -9,6 +9,7 @@ import { SHEET_MARKER_ICON } from '../sheet/markerIcon';
 import { getRouteUrl, getSuggestUrl } from './api';
 import {
   EMPTY_DIRECTIONS_EDIT,
+  EMPTY_DIRECTIONS_ROUTES,
   DIRECTIONS_ACTIVE_OUTLINE_COLOR,
   DIRECTIONS_ACTIVE_OUTLINE_WIDTH,
   DIRECTIONS_ACTIVE_STROKE_COLOR,
@@ -17,6 +18,10 @@ import {
   DIRECTIONS_DESTINATION_POI_COLOR,
   DIRECTIONS_EMPTY_TEXT,
   DIRECTIONS_ENDPOINT_ORIGIN,
+  DIRECTIONS_INACTIVE_OUTLINE_COLOR,
+  DIRECTIONS_INACTIVE_OUTLINE_WIDTH,
+  DIRECTIONS_INACTIVE_STROKE_COLOR,
+  DIRECTIONS_INACTIVE_STROKE_WIDTH,
   DIRECTIONS_LOADING_TEXT,
   DIRECTIONS_MY_LOCATION_TEXT,
   DIRECTIONS_ORIGIN_POI_COLOR,
@@ -29,7 +34,7 @@ import {
   DIRECTIONS_DESTINATION_ICON,
   DIRECTIONS_ORIGIN_ICON,
 } from './poiIcons';
-import { resolveRoute } from './route';
+import { resolveRoutes } from './route';
 import { resolveSuggestions } from './suggestions';
 
 /**
@@ -63,7 +68,7 @@ async function startDirections(self) {
     isDirectionsVisible: true,
     directionsOrigin: origin,
     directionsDestination: destination,
-    directionsRoute: null,
+    ...EMPTY_DIRECTIONS_ROUTES,
     isDirectionsLoading: origin != null,
     directionsStatusText: origin
       ? DIRECTIONS_LOADING_TEXT
@@ -328,7 +333,7 @@ function closeDirections(self) {
 
   self.setState({
     isDirectionsVisible: false,
-    directionsRoute: null,
+    ...EMPTY_DIRECTIONS_ROUTES,
     directionsOrigin: null,
     directionsDestination: null,
     pickingEndpoint: null,
@@ -354,7 +359,7 @@ async function loadRoute(self, origin, destination, mode) {
     pickingEndpoint: null,
     isDirectionsVisible: true,
     isDirectionsLoading: true,
-    directionsRoute: null,
+    ...EMPTY_DIRECTIONS_ROUTES,
     directionsStatusText: DIRECTIONS_LOADING_TEXT,
   });
 
@@ -370,18 +375,26 @@ async function loadRoute(self, origin, destination, mode) {
     // The renderer decodes the payload natively, so the untouched response
     // text is what gets handed to it — no polyline decoding in JS.
     const text = await response.text();
-    const route = resolveRoute(JSON.parse(text));
+    const routes = resolveRoutes(JSON.parse(text));
 
     if (!isCurrentRequest()) {
       return;
     }
 
+    const route = routes[0];
+
     if (route) {
       self._setDirections(text, {
+        activedIndex: route.index,
         activeStrokeColor: DIRECTIONS_ACTIVE_STROKE_COLOR,
         activeStrokeWidth: DIRECTIONS_ACTIVE_STROKE_WIDTH,
         activeOutlineColor: DIRECTIONS_ACTIVE_OUTLINE_COLOR,
         activeOutlineWidth: DIRECTIONS_ACTIVE_OUTLINE_WIDTH,
+        inactiveStrokeColor: DIRECTIONS_INACTIVE_STROKE_COLOR,
+        inactiveStrokeWidth: DIRECTIONS_INACTIVE_STROKE_WIDTH,
+        inactiveOutlineColor: DIRECTIONS_INACTIVE_OUTLINE_COLOR,
+        inactiveOutlineWidth: DIRECTIONS_INACTIVE_OUTLINE_WIDTH,
+        onPress: self._onDirectionsRoutePress,
         originPOIOptions: {
           coordinate: origin.coordinate,
           icon: { uri: DIRECTIONS_ORIGIN_ICON },
@@ -401,7 +414,8 @@ async function loadRoute(self, origin, destination, mode) {
     }
 
     self.setState({
-      directionsRoute: route,
+      directionsRoutes: routes,
+      directionsRouteIndex: route ? route.index : null,
       directionsStatusText: DIRECTIONS_EMPTY_TEXT,
       isDirectionsLoading: false,
     });
@@ -412,11 +426,40 @@ async function loadRoute(self, origin, destination, mode) {
 
     console.warn('Cannot load route', error);
     self.setState({
-      directionsRoute: null,
+      ...EMPTY_DIRECTIONS_ROUTES,
       directionsStatusText: DIRECTIONS_EMPTY_TEXT,
       isDirectionsLoading: false,
     });
   }
+}
+
+function selectDirectionsRoute(self, index) {
+  if (typeof index !== 'number' || index === self.state.directionsRouteIndex) {
+    return;
+  }
+
+  const route = self.state.directionsRoutes.find(
+    (item) => item.index === index
+  );
+
+  if (!route) {
+    return;
+  }
+
+  self.setState({ directionsRouteIndex: index });
+  self._setDirectionsActiveIndex(index);
+}
+
+// The renderer reports the tap but keeps drawing the route it was told to,
+// so the active one is switched from here.
+function onDirectionsRoutePress(self, event) {
+  // A tap meant for the point being picked is not a tap on the route it
+  // happened to land on.
+  if (self.state.pickingEndpoint != null) {
+    return;
+  }
+
+  selectDirectionsRoute(self, event?.nativeEvent?.routeIndex);
 }
 
 /**
@@ -451,6 +494,8 @@ function attachDirectionsHandlers(self) {
   self._closeDirections = () => closeDirections(self);
   self._loadRoute = (origin, destination, mode) =>
     loadRoute(self, origin, destination, mode);
+  self._selectDirectionsRoute = (index) => selectDirectionsRoute(self, index);
+  self._onDirectionsRoutePress = (event) => onDirectionsRoutePress(self, event);
 }
 
 export { attachDirectionsHandlers };
