@@ -5,3 +5,5 @@ rootProject.name = 'Map4dMapExample'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 
+include ':Map4dMap'
+project(':Map4dMap').projectDir = new File("C:/Users/DUYDUNG/Documents/MyProject/mapes/platforms/android/Map4dMap")

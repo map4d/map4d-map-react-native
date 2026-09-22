@@ -3,7 +3,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-configureMFBanDoSo({ apiHost: 'https://kong-cdtmc-devtest.mbfs.vn' });
+configureMFBanDoSo({ apiHost: 'https://cmcdtqg-gateway.dieuhanhso.vn' });
 
 const INITIAL_CAMERA = {
   center: {
@@ -29,6 +29,7 @@ function BanDoSoScreen() {
         style={styles.container}
         camera={INITIAL_CAMERA}
         mapType="roadmap"
+        isStaging={true}
         onDataSourceFeaturePress={onDataSourceFeaturePress}
       />
     </SafeAreaView>
