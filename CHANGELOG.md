@@ -1,3 +1,9 @@
+## 0.2.1
+
+* Get the base map style from the SDK
+* Fix missing POI icons when rendering the map style by updating the map core
+* Update the directions view on the map to support multiple routes
+
 ## 0.2.0
 
 * Change API from 'https://cmcdtqg-gateway.dieuhanhso.vn' to 'https://kong-cdtmc-devtest.mbfs.vn'
