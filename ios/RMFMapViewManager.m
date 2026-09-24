@@ -262,6 +262,15 @@ RCT_EXPORT_METHOD(getMapStyle:(nonnull NSNumber *)reactTag
   }];
 }
 
+RCT_EXPORT_METHOD(getAPIHost:(nonnull NSNumber *)reactTag
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+      resolve([mapView getAPIHost] ?: [NSNull null]);
+  }];
+}
+
 
 RCT_EXPORT_METHOD(setZoomGesturesEnabled:(nonnull NSNumber *)reactTag
                   enable:(BOOL)enable) {
