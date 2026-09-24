@@ -52,7 +52,7 @@ async function loadAdvancedOptions(self) {
       try {
         return [name, resolve(await fetchJson(url))];
       } catch (error) {
-        console.warn(`Cannot load ${name} options`, error);
+        self._reportApiError(`Cannot load ${name} options`, error);
         return [name, []];
       }
     })
@@ -105,7 +105,7 @@ async function loadDependentOptions(
       },
     }));
   } catch (error) {
-    console.warn(`Cannot load ${name} options`, error);
+    self._reportApiError(`Cannot load ${name} options`, error);
   }
 }
 
@@ -239,7 +239,7 @@ async function loadAdvancedPage(self, page) {
       return;
     }
 
-    console.warn('Cannot run advanced search', error);
+    self._reportApiError('Cannot run advanced search', error);
     self.setState((prevState) => ({
       isAdvancedLoading: false,
       isAdvancedLoadingMore: false,
