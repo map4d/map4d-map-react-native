@@ -14,6 +14,13 @@ const DRAWER_SWIPE_CLOSE_VELOCITY = 0.5;
 // the map rather than reading that as a bug.
 const NO_GEOMETRY_LABEL = 'Chưa có dữ liệu không gian';
 
+// Every failed request says the same thing: which one failed matters to the
+// log, not to the user, who can only retry either way.
+const ERROR_DIALOG_TITLE = 'Thông báo';
+const ERROR_DIALOG_CLOSE_LABEL = 'Đóng';
+const API_ERROR_MESSAGE =
+  'Không lấy được dữ liệu từ máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.';
+
 // Geometry of the round map buttons. They appear in two places — beside the
 // search bar and stacked under it — and the gap has to read as the same one
 // throughout, so every position is derived from these rather than written out.
@@ -30,6 +37,9 @@ const MAP_BUTTON_STACK_TOP =
   SEARCH_BAR_TOP + MAP_BUTTON_BAR_OFFSET + MAP_BUTTON_PITCH;
 
 export {
+  API_ERROR_MESSAGE,
+  ERROR_DIALOG_CLOSE_LABEL,
+  ERROR_DIALOG_TITLE,
   MAP_BUTTON_BAR_OFFSET,
   MAP_BUTTON_GAP,
   MAP_BUTTON_PITCH,

@@ -35,7 +35,11 @@ import { banDoSoPropTypes } from './MFBanDoSo/propTypes';
 import { SearchBox } from './MFBanDoSo/search';
 import { attachSearchHandlers } from './MFBanDoSo/search/handlers';
 import { fetchJson } from './MFBanDoSo/shared/api';
-import { DRAWER_TRANSLATE_X } from './MFBanDoSo/shared/constants';
+import {
+  API_ERROR_MESSAGE,
+  DRAWER_TRANSLATE_X,
+} from './MFBanDoSo/shared/constants';
+import { ErrorDialog } from './MFBanDoSo/shared/ErrorDialog';
 import { sharedStyles } from './MFBanDoSo/shared/styles';
 import {
   InvestmentSheet,
@@ -195,6 +199,7 @@ class MFBanDoSo extends MFMapView {
       advancedResults: null,
       isAdvancedLoading: false,
       isAdvancedLoadingMore: false,
+      errorMessage: null,
     };
 
     this._closeSheet = this._closeSheet.bind(this);
@@ -204,6 +209,7 @@ class MFBanDoSo extends MFMapView {
     this._closeZoneProjects = this._closeZoneProjects.bind(this);
     this._snapSheetTo = this._snapSheetTo.bind(this);
     this._resetBearing = this._resetBearing.bind(this);
+    this._closeErrorDialog = this._closeErrorDialog.bind(this);
 
     // Each feature's handlers live with that feature and are wired on here.
     // What stays a method above is what the map itself owns: the sheet it
@@ -263,6 +269,29 @@ class MFBanDoSo extends MFMapView {
     this._cancelMapStyleRetry();
   }
 
+  /**
+   * The one place a failed request is reported. The log keeps the detail; the
+   * user gets a single dialog, and a second failure while it is open does not
+   * stack another one on top of it.
+   */
+  _reportApiError(label, error, message) {
+    if (error === undefined) {
+      console.warn(label);
+    } else {
+      console.warn(label, error);
+    }
+
+    if (!this._isMounted || this.state.errorMessage != null) {
+      return;
+    }
+
+    this.setState({ errorMessage: message ?? API_ERROR_MESSAGE });
+  }
+
+  _closeErrorDialog() {
+    this.setState({ errorMessage: null });
+  }
+
   async _loadInfraInfo(infraId) {
     const isCurrentRequest = this._beginSheetRequest(
       SHEET_KIND_INFRA,
@@ -295,7 +324,7 @@ class MFBanDoSo extends MFMapView {
         return;
       }
 
-      console.warn('Cannot load infrastructure detail', error);
+      this._reportApiError('Cannot load infrastructure detail', error);
       this._resolveSheetResult(isCurrentRequest, null, SHEET_INFRA_EMPTY_TEXT);
     }
   }
@@ -548,7 +577,7 @@ class MFBanDoSo extends MFMapView {
         return;
       }
 
-      console.warn('Cannot load investment info', error);
+      this._reportApiError('Cannot load investment info', error);
       this._resolveSheetResult(isCurrentRequest, null, SHEET_EMPTY_TEXT);
     }
   }
@@ -577,7 +606,7 @@ class MFBanDoSo extends MFMapView {
         return;
       }
 
-      console.warn('Cannot load zone detail', error);
+      this._reportApiError('Cannot load zone detail', error);
       this._resolveSheetResult(isCurrentRequest, null, SHEET_ZONE_EMPTY_TEXT);
     }
   }
@@ -637,7 +666,7 @@ class MFBanDoSo extends MFMapView {
         return;
       }
 
-      console.warn('Cannot load zone projects', error);
+      this._reportApiError('Cannot load zone projects', error);
       this.setState({
         zoneProjects: [],
         zoneProjectsStatusText: emptyText,
@@ -1050,7 +1079,7 @@ class MFBanDoSo extends MFMapView {
             text={pickHintText}
             onCancel={this._cancelPickOrigin}
           />
-          {/* Last, so it covers everything else: it is a screen, not a panel. */}
+          {/* Above the panels below it: it is a screen, not one of them. */}
           <AdvancedSearchView
             show={this.state.isAdvancedSearchVisible}
             target={this.state.advancedTarget}
@@ -1068,6 +1097,13 @@ class MFBanDoSo extends MFMapView {
             onSelectResult={this._onSelectAdvancedResult}
             scrollOffset={this._advancedScrollOffset}
             onScrollOffsetChange={this._onAdvancedScrollOffsetChange}
+          />
+          {/* Over everything, the advanced-search screen included: a failed
+              request has to be readable on whatever was open when it failed. */}
+          <ErrorDialog
+            show={this.state.errorMessage != null}
+            message={this.state.errorMessage}
+            onClose={this._closeErrorDialog}
           />
         </View>
       </React.Fragment>
