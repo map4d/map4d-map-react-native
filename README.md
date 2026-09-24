@@ -146,21 +146,31 @@ Examples:
 
 ## MFBanDoSo usage
 
-`MFBanDoSo` extends `MFMapView`. It fetches its category config, legend config, vector tile source and all other data from a single internal API host, lets the user toggle which categories are shown, and syncs the resulting GeoJSON style to the map. The host is not a prop — call `configureMFBanDoSo` once, before any `MFBanDoSo` mounts, to point it at the right backend (see below). It renders its own layer-selector and legend UI on top of the map — there is no prop to disable or reposition this UI.
+`MFBanDoSo` extends `MFMapView`. It fetches its category config, legend config, vector tile source and all other data from a single internal API host, lets the user toggle which categories are shown, and syncs the resulting GeoJSON style to the map. The host is not a prop and not a JS setting — it is the SDK's own API host, read off the map with `getAPIHost()` once the map is ready (see below). It renders its own layer-selector and legend UI on top of the map — there is no prop to disable or reposition this UI.
 
-### Configuring the API host
+### The API host
 
-The backend host changes independently of this package's releases, so it is set at runtime instead of being baked into a version:
+`MFBanDoSo` uses whatever host the Map4D SDK was initialized with, so the backend is configured once natively, next to the access key, and JS never sets it.
 
-```javascript
-import {configureMFBanDoSo} from 'react-native-map4d-map-dtqg';
+Android — `android/app/src/main/AndroidManifest.xml`:
 
-configureMFBanDoSo({apiHost: 'https://kong-cdtmc-devtest.mbfs.vn'});
+```xml
+<meta-data
+  android:name="vn.map4d.map.API_HOST"
+  android:value="https://cmcdtqg-gateway.dieuhanhso.vn" />
 ```
 
-- Call it once, as early as possible (e.g. at the top of your app's entry file) — before any `MFBanDoSo` fetches happen.
-- `apiHost` is the bare gateway host, without a `/bds` (or any other service) path segment — `MFBanDoSo` adds the right segment per endpoint internally.
-- If `configureMFBanDoSo` is never called, `MFBanDoSo` falls back to its built-in default host.
+iOS — `Info.plist`:
+
+```xml
+<key>Map4dMapApiHost</key>
+<string>https://cmcdtqg-gateway.dieuhanhso.vn</string>
+```
+
+- The value is the bare gateway host, without a `/bds` (or any other service) path segment — `MFBanDoSo` adds the right segment per endpoint internally.
+- Declare it before the app runs: the host is fixed by the first map that gets initialized, and every map returns that same value afterwards.
+- Without it the SDK falls back to its own built-in host, which serves the map tiles but not necessarily the `bds` endpoints.
+- `MFBanDoSo` reads the host once the map is ready and holds every request until it arrives, so nothing is fetched against a guessed host.
 
 ```javascript
 import {MFBanDoSo} from 'react-native-map4d-map-dtqg';
@@ -201,5 +211,5 @@ export default App;
 
 Props:
 - `isStaging`: optional `boolean`, default `false`. Toggles the `/staging` path segment on the configured API host, for every endpoint `MFBanDoSo` fetches from.
-- Otherwise no `MFBanDoSo`-specific props — the API host is set globally via `configureMFBanDoSo`, not per instance.
+- Otherwise no `MFBanDoSo`-specific props — the API host comes from the SDK, not from a prop (see [The API host](#the-api-host)).
 - All `MFMapView` props (`camera`, `mapType`, `mapStyle`, `onDataSourceFeaturePress`, etc.) and children (e.g. `MFBuilding`, `MFMarker`) are supported the same way as on `MFMapView`.

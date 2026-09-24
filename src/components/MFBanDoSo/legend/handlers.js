@@ -4,6 +4,7 @@ import {
   DRAWER_OPEN_DURATION_MS,
 } from '../shared/constants';
 import { getLegendConfigUrl } from './api';
+import { whenApiHostReady } from '../shared/api';
 import { resolveLegendGroupSections } from './legendSections';
 
 /**
@@ -17,6 +18,7 @@ async function loadLegendItems(self) {
   self._legendRequestId = requestId;
 
   try {
+    await whenApiHostReady();
     const response = await fetch(getLegendConfigUrl(self.props.isStaging));
     if (!response.ok) {
       throw new Error(`Failed to fetch legend config: ${response.status}`);

@@ -8,6 +8,7 @@ import {
   DRAWER_OPEN_DURATION_MS,
 } from '../shared/constants';
 import { getCategoryConfigUrl, getSourceUrl } from './api';
+import { hasApiHost, whenApiHostReady } from '../shared/api';
 import {
   createCategoryGroupSections,
   getSelectedCategoryItems,
@@ -24,6 +25,7 @@ async function loadCategoryItems(self) {
   self._categoryRequestId = requestId;
 
   try {
+    await whenApiHostReady();
     const response = await fetch(getCategoryConfigUrl(self.props.isStaging));
     if (!response.ok) {
       throw new Error(`Failed to fetch category config: ${response.status}`);
@@ -212,7 +214,7 @@ function cancelMapStyleRetry(self) {
 }
 
 function syncGeojsonStyle(self) {
-  if (!self.state.isReady) {
+  if (!self.state.isReady || !hasApiHost()) {
     return;
   }
 

@@ -26,6 +26,8 @@
 	<true/>
 	<key>Map4dMapAccessKey</key>
 	<string>YOUR_ACCESS_KEY</string>
+	<key>Map4dMapApiHost</key>
+	<string>https://cmcdtqg-gateway.dieuhanhso.vn</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

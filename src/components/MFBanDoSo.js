@@ -34,7 +34,7 @@ import { attachLegendHandlers } from './MFBanDoSo/legend/handlers';
 import { banDoSoPropTypes } from './MFBanDoSo/propTypes';
 import { SearchBox } from './MFBanDoSo/search';
 import { attachSearchHandlers } from './MFBanDoSo/search/handlers';
-import { fetchJson } from './MFBanDoSo/shared/api';
+import { fetchJson, setApiHost } from './MFBanDoSo/shared/api';
 import { DRAWER_TRANSLATE_X } from './MFBanDoSo/shared/constants';
 import { sharedStyles } from './MFBanDoSo/shared/styles';
 import {
@@ -93,6 +93,7 @@ class MFBanDoSo extends MFMapView {
   constructor(props) {
     super(props);
     this._isMounted = false;
+    this._isApiHostLoaded = false;
     this._sheetRequestId = 0;
     this._hasFocusedFromSheet = false;
     // Set only by picking a result out of advanced search, so closing the
@@ -227,6 +228,7 @@ class MFBanDoSo extends MFMapView {
     const isStagingChanged = prevProps.isStaging !== this.props.isStaging;
 
     if (mapReadyChanged && this.state.isReady) {
+      this._loadApiHost();
       // The map's own style is what the layers get spliced into, so it is read
       // before the first sync writes over it.
       this._loadMapStyle();
@@ -261,6 +263,32 @@ class MFBanDoSo extends MFMapView {
     this._cancelPendingSearch();
     this._cancelPendingSuggest();
     this._cancelMapStyleRetry();
+  }
+
+  async _loadApiHost() {
+    if (this._isApiHostLoaded) {
+      return;
+    }
+
+    let host = null;
+
+    try {
+      host = await this.getAPIHost();
+    } catch (error) {
+      console.warn('Cannot read API host', error);
+      return;
+    }
+
+    if (!setApiHost(host)) {
+      console.warn('Cannot read API host: the SDK returned an empty host');
+      return;
+    }
+
+    this._isApiHostLoaded = true;
+
+    if (this._isMounted) {
+      this._syncGeojsonStyle();
+    }
   }
 
   async _loadInfraInfo(infraId) {

@@ -1,9 +1,7 @@
-import { configureMFBanDoSo, MFBanDoSo } from 'react-native-map4d-map-dtqg';
+import { MFBanDoSo } from 'react-native-map4d-map-dtqg';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-configureMFBanDoSo({ apiHost: 'https://cmcdtqg-gateway.dieuhanhso.vn' });
 
 const INITIAL_CAMERA = {
   center: {
