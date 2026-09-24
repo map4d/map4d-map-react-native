@@ -222,7 +222,7 @@ async function loadDirectionsSuggestions(self, text) {
       return;
     }
 
-    console.warn('Cannot suggest places', error);
+    self._reportApiError('Cannot suggest places', error);
     self.setState({
       directionsSuggestions: [],
       isDirectionsSuggestLoading: false,
@@ -424,7 +424,7 @@ async function loadRoute(self, origin, destination, mode) {
       return;
     }
 
-    console.warn('Cannot load route', error);
+    self._reportApiError('Cannot load route', error);
     self.setState({
       ...EMPTY_DIRECTIONS_ROUTES,
       directionsStatusText: DIRECTIONS_EMPTY_TEXT,

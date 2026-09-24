@@ -99,7 +99,7 @@ async function loadSearchResults(self, keyword) {
       return;
     }
 
-    console.warn('Cannot search', error);
+    self._reportApiError('Cannot search', error);
     self.setState({ searchSections: [], isSearchLoading: false });
   }
 }

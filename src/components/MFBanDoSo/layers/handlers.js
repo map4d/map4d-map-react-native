@@ -59,7 +59,7 @@ async function loadCategoryItems(self) {
     if (requestId !== self._categoryRequestId) {
       return;
     }
-    console.warn('Cannot load category items', error);
+    self._reportApiError('Cannot load category items', error);
   }
 }
 

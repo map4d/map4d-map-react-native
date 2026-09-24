@@ -108,6 +108,55 @@ const sharedStyles = StyleSheet.create({
   drawerList: {
     flex: 1,
   },
+  dialogContainer: {
+    ...fullFill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  dialogBackdrop: {
+    ...fullFill,
+    backgroundColor: '#11182766',
+  },
+  dialogCard: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 8,
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    elevation: 6,
+  },
+  dialogTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  dialogMessage: {
+    marginTop: 8,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#4b5563',
+  },
+  dialogButton: {
+    marginTop: 12,
+    alignSelf: 'flex-end',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  dialogButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2563eb',
+  },
   statusBox: {
     paddingHorizontal: 16,
     paddingVertical: 28,

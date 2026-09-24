@@ -34,7 +34,7 @@ async function loadLegendItems(self) {
     if (requestId !== self._legendRequestId) {
       return;
     }
-    console.warn('Cannot load legend items', error);
+    self._reportApiError('Cannot load legend items', error);
   }
 }
 
