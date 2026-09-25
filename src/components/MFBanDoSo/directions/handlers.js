@@ -6,6 +6,7 @@ import {
   ZONE_HIGHLIGHT_Z_INDEX,
 } from '../sheet/constants';
 import { SHEET_MARKER_ICON } from '../sheet/markerIcon';
+import { fetchApi } from '../shared/api';
 import { getRouteUrl, getSuggestUrl } from './api';
 import {
   EMPTY_DIRECTIONS_EDIT,
@@ -201,12 +202,10 @@ async function loadDirectionsSuggestions(self, text) {
     self._isMounted && requestId === self._suggestRequestId;
 
   try {
-    const response = await fetch(
-      getSuggestUrl(self.props.isStaging, text, self._cameraCenter)
+    const response = await fetchApi(
+      getSuggestUrl(self.props.isStaging, text, self._cameraCenter),
+      'place suggestions'
     );
-    if (!response.ok) {
-      throw new Error(`Failed to suggest places: ${response.status}`);
-    }
 
     const json = await response.json();
     if (!isCurrentRequest()) {
@@ -367,10 +366,7 @@ async function loadRoute(self, origin, destination, mode) {
     self._isMounted && requestId === self._routeRequestId;
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch route: ${response.status}`);
-    }
+    const response = await fetchApi(url, 'route');
 
     // The renderer decodes the payload natively, so the untouched response
     // text is what gets handed to it — no polyline decoding in JS.

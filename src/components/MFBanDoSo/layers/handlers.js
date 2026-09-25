@@ -7,6 +7,7 @@ import {
   DRAWER_CLOSE_DURATION_MS,
   DRAWER_OPEN_DURATION_MS,
 } from '../shared/constants';
+import { fetchApi } from '../shared/api';
 import { getCategoryConfigUrl, getSourceUrl } from './api';
 import {
   createCategoryGroupSections,
@@ -24,10 +25,10 @@ async function loadCategoryItems(self) {
   self._categoryRequestId = requestId;
 
   try {
-    const response = await fetch(getCategoryConfigUrl(self.props.isStaging));
-    if (!response.ok) {
-      throw new Error(`Failed to fetch category config: ${response.status}`);
-    }
+    const response = await fetchApi(
+      getCategoryConfigUrl(self.props.isStaging),
+      'category config'
+    );
 
     const json = await response.json();
     const nextItems = resolveItemsFromCategoryResponse(json);

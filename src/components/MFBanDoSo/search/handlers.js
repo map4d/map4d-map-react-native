@@ -1,4 +1,5 @@
 import { Keyboard } from 'react-native';
+import { fetchApi } from '../shared/api';
 import { getSearchUrl } from './api';
 import {
   SEARCH_DEBOUNCE_MS,
@@ -80,10 +81,10 @@ async function loadSearchResults(self, keyword) {
     self._isMounted && requestId === self._searchRequestId;
 
   try {
-    const response = await fetch(getSearchUrl(self.props.isStaging, keyword));
-    if (!response.ok) {
-      throw new Error(`Failed to search: ${response.status}`);
-    }
+    const response = await fetchApi(
+      getSearchUrl(self.props.isStaging, keyword),
+      'search results'
+    );
 
     const json = await response.json();
     if (!isCurrentRequest()) {

@@ -1,7 +1,7 @@
 import { createCategoryItemsSignature } from '../../internal/GeojsonStyleUtils';
 
 /**
- * Reads the `BanDo/dau-tu/category-config` payload and keeps the checked state
+ * Reads the `portal/BanDo/dau-tu/category-config` payload and keeps the checked state
  * the layer drawer edits. The payload nests differently between environments —
  * items may sit under `data`, `data.items` or `items`, and groups likewise — so
  * every shape seen in the wild is accepted rather than assumed.

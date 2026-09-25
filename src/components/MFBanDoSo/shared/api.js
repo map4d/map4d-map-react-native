@@ -25,18 +25,41 @@ function buildGatewayUrl(path, isStaging) {
 }
 
 /**
- * Every call wants the parsed body, and a failed status to raise rather than
- * return. `what` names the thing being fetched so the warning that reaches the
- * console says which request failed, not merely that one did.
+ * A failed status raises rather than returns. `what` names the thing being
+ * fetched so the warning that reaches the console says which request failed,
+ * not merely that one did. Every error it raises carries the `url`, so the
+ * error dialog can show which endpoint failed.
  */
-async function fetchJson(url, what) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    const subject = what ? `Failed to fetch ${what}` : 'Request failed';
-    throw new Error(`${subject}: ${response.status}`);
+async function fetchApi(url, what) {
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (error) {
+    if (error != null && typeof error === 'object') {
+      error.url = url;
+    }
+    throw error;
   }
 
+  if (!response.ok) {
+    const subject = what ? `Failed to fetch ${what}` : 'Request failed';
+    const error = new Error(`${subject}: ${response.status}`);
+    error.url = url;
+    throw error;
+  }
+
+  return response;
+}
+
+async function fetchJson(url, what) {
+  const response = await fetchApi(url, what);
   return response.json();
 }
 
-export { buildApiUrl, buildGatewayUrl, configureMFBanDoSo, fetchJson };
+export {
+  buildApiUrl,
+  buildGatewayUrl,
+  configureMFBanDoSo,
+  fetchApi,
+  fetchJson,
+};

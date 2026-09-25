@@ -285,7 +285,13 @@ class MFBanDoSo extends MFMapView {
       return;
     }
 
-    this.setState({ errorMessage: message ?? API_ERROR_MESSAGE });
+    const url =
+      typeof error?.url === 'string' ? error.url.split(/[?#]/)[0] : null;
+    this.setState({
+      errorMessage:
+        message ??
+        (url ? `${API_ERROR_MESSAGE}\n\nURL: ${url}` : API_ERROR_MESSAGE),
+    });
   }
 
   _closeErrorDialog() {
