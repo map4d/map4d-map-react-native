@@ -3,6 +3,7 @@ import {
   DRAWER_CLOSE_DURATION_MS,
   DRAWER_OPEN_DURATION_MS,
 } from '../shared/constants';
+import { fetchApi } from '../shared/api';
 import { getLegendConfigUrl } from './api';
 import { resolveLegendGroupSections } from './legendSections';
 
@@ -17,10 +18,10 @@ async function loadLegendItems(self) {
   self._legendRequestId = requestId;
 
   try {
-    const response = await fetch(getLegendConfigUrl(self.props.isStaging));
-    if (!response.ok) {
-      throw new Error(`Failed to fetch legend config: ${response.status}`);
-    }
+    const response = await fetchApi(
+      getLegendConfigUrl(self.props.isStaging),
+      'legend config'
+    );
 
     const json = await response.json();
     const legendSections = resolveLegendGroupSections(json);

@@ -1,5 +1,5 @@
 /**
- * Reads the `BanDo/dau-tu/cau-hinh-hien-thi` payload, which splits the map's
+ * Reads the `portal/BanDo/dau-tu/danh-sach-chu-giai` payload, which splits the map's
  * categories the way the map itself does: the zones it fills, and the
  * connectivity layers it pins. Each side is one legend group, and since the
  * payload names only the entries inside a side, the group's own title is held

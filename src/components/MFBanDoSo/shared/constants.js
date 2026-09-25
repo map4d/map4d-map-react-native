@@ -14,8 +14,6 @@ const DRAWER_SWIPE_CLOSE_VELOCITY = 0.5;
 // the map rather than reading that as a bug.
 const NO_GEOMETRY_LABEL = 'Chưa có dữ liệu không gian';
 
-// Every failed request says the same thing: which one failed matters to the
-// log, not to the user, who can only retry either way.
 const ERROR_DIALOG_TITLE = 'Thông báo';
 const ERROR_DIALOG_CLOSE_LABEL = 'Đóng';
 const API_ERROR_MESSAGE =
