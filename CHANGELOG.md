@@ -1,3 +1,8 @@
+## 0.2.2
+
+* Added error dialog for failed API calls
+* Updated Categories and Legend API paths
+
 ## 0.2.1
 
 * Get the base map style from the SDK
