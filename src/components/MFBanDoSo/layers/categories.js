@@ -89,7 +89,7 @@ function normalizeCategoryItems(items) {
 
   return items.map((item) => ({
     ...item,
-    checked: item?.checked !== false,
+    checked: false,
   }));
 }
 
