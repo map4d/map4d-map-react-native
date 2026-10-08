@@ -1,3 +1,7 @@
+## 0.2.3
+
+* Uncheck all layers by default in MFBanDoSo
+
 ## 0.2.2
 
 * Added error dialog for failed API calls
