@@ -1,3 +1,8 @@
+## 0.2.4
+
+* Remove the province focus button
+* Update the directions button icon
+
 ## 0.2.3
 
 * Uncheck all layers by default in MFBanDoSo
