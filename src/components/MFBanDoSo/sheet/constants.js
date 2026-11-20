@@ -24,7 +24,6 @@ const SHEET_LOADING_TEXT = 'Đang tải thông tin đầu tư...';
 const SHEET_EMPTY_TEXT = 'Không có thông tin đầu tư tại vị trí này.';
 const SHEET_STATS_TITLE = 'Chỉ số nổi bật';
 const SHEET_INDUSTRIAL_ZONES_TITLE = 'Khu công nghiệp';
-const SHEET_FOCUS_ACTION_LABEL = 'Xem tỉnh trên bản đồ';
 // Which body the sheet draws: a province by default, a zone when a KCN/KKT
 // feature was tapped.
 const SHEET_KIND_PROVINCE = 'province';
@@ -102,7 +101,6 @@ const ZONE_AREA_SUFFIX = ' m²';
 export {
   SHEET_CLOSE_DURATION_MS,
   SHEET_EMPTY_TEXT,
-  SHEET_FOCUS_ACTION_LABEL,
   SHEET_FOCUS_PADDING,
   SHEET_FOOTER_FADE_RATIO,
   SHEET_FULL_SNAP_RATIO,

@@ -203,7 +203,6 @@ class MFBanDoSo extends MFMapView {
     };
 
     this._closeSheet = this._closeSheet.bind(this);
-    this._focusProvinceFromSheet = this._focusProvinceFromSheet.bind(this);
     this._onSheetPanelHeightChange = this._onSheetPanelHeightChange.bind(this);
     this._openZoneProjects = this._openZoneProjects.bind(this);
     this._closeZoneProjects = this._closeZoneProjects.bind(this);
@@ -899,10 +898,6 @@ class MFBanDoSo extends MFMapView {
     });
   }
 
-  _focusProvinceFromSheet() {
-    this._focusProvince(this.state.sheetInfo?.focusProvince);
-  }
-
   render() {
     const items = this.state.categoryItems;
     const legendGroupSections = this.state.legendSections;
@@ -1076,7 +1071,6 @@ class MFBanDoSo extends MFMapView {
             onBack={backHandler}
             onSnapTo={this._snapSheetTo}
             onPanelHeightChange={this._onSheetPanelHeightChange}
-            onFocusProvince={this._focusProvinceFromSheet}
             onPressProjects={this._openZoneProjects}
             onPressDirections={this._startDirections}
           />

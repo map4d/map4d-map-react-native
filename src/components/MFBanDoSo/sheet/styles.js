@@ -272,18 +272,9 @@ const sheetStyles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#d1d5db',
-    marginRight: 8,
   },
   sheetActionLabelGhost: {
     color: '#374151',
-  },
-  sheetActionIcon: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    borderWidth: 2.5,
-    borderColor: '#ffffff',
-    marginRight: 8,
   },
   sheetActionLabel: {
     fontSize: 13,

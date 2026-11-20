@@ -15,7 +15,6 @@ import { DirectionsBody } from '../directions/DirectionsBody';
 import { DirectionsIcon } from '../directions/DirectionsIcon';
 import { sharedStyles } from '../shared/styles';
 import {
-  SHEET_FOCUS_ACTION_LABEL,
   SHEET_FOOTER_FADE_RATIO,
   SHEET_HALF_SNAP_RATIO,
   SHEET_KIND_INFRA,
@@ -68,13 +67,7 @@ function SheetScroll({ viewKey, tailSpace, children }) {
   );
 }
 
-function SheetActionBar({
-  animatedStyle,
-  showFocusProvince,
-  onLayout,
-  onPressDirections,
-  onFocusProvince,
-}) {
+function SheetActionBar({ animatedStyle, onLayout, onPressDirections }) {
   return (
     <Animated.View
       style={[sheetStyles.sheetActionBar, animatedStyle]}
@@ -97,19 +90,6 @@ function SheetActionBar({
           {DIRECTIONS_ACTION_LABEL}
         </Text>
       </Pressable>
-      {/* Only a province can be framed on the map; a zone draws its own
-          geometry the moment its sheet opens, so it has nothing to focus. */}
-      {showFocusProvince ? (
-        <Pressable
-          style={sheetStyles.sheetActionButton}
-          onPress={onFocusProvince}
-        >
-          <View style={sheetStyles.sheetActionIcon} />
-          <Text style={sheetStyles.sheetActionLabel}>
-            {SHEET_FOCUS_ACTION_LABEL}
-          </Text>
-        </Pressable>
-      ) : null}
     </Animated.View>
   );
 }
@@ -147,7 +127,6 @@ function InvestmentSheet({
   onBack,
   onSnapTo,
   onPanelHeightChange,
-  onFocusProvince,
   onPressProjects,
   onPressDirections,
 }) {
@@ -310,10 +289,8 @@ function InvestmentSheet({
       {showActionBar ? (
         <SheetActionBar
           animatedStyle={footerAnimatedStyle}
-          showFocusProvince={info.focusProvince != null}
           onLayout={(event) => measureHeight(event, setFooterHeight)}
           onPressDirections={onPressDirections}
-          onFocusProvince={onFocusProvince}
         />
       ) : null}
     </View>
