@@ -15,6 +15,26 @@
 
 RCT_EXPORT_MODULE(RMFDirectionsRenderer)
 
+- (void)withRendererForTag:(nonnull NSNumber *)reactTag
+                   handler:(void (^)(RMFDirectionsRenderer *renderer))handler
+{
+  RCTUIManager *uiManager = self.bridge.uiManager;
+  if (uiManager == nil) {
+    RCTLogError(@"UIManager is unavailable on iOS runtime");
+    return;
+  }
+
+  [uiManager addUIBlock:^(__unused RCTUIManager *manager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    id view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RMFDirectionsRenderer class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RMFDirectionsRenderer, got: %@", view);
+      return;
+    }
+
+    handler((RMFDirectionsRenderer *)view);
+  }];
+}
+
 - (UIView*)view {
   RMFDirectionsRenderer* renderer = [[RMFDirectionsRenderer alloc] init];
   return renderer;
@@ -42,42 +62,24 @@ RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_METHOD(setActivedIndex:(nonnull NSNumber *)reactTag
                   withRouteIndex:(NSUInteger)routeIndex)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFDirectionsRenderer class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFDirectionsRenderer* renderer = (RMFDirectionsRenderer*)view;
-      renderer.activedIndex = routeIndex;
-    }
+  [self withRendererForTag:reactTag handler:^(RMFDirectionsRenderer *renderer) {
+    renderer.activedIndex = routeIndex;
   }];
 }
 
 RCT_EXPORT_METHOD(setRoutes:(nonnull NSNumber *)reactTag
                   withRoutes:(id)routes)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFDirectionsRenderer class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFDirectionsRenderer* renderer = (RMFDirectionsRenderer*)view;
-      [renderer setRoutes:[RCTConvert RMFCoordinateArrayArray:routes]];
-    }
+  [self withRendererForTag:reactTag handler:^(RMFDirectionsRenderer *renderer) {
+    [renderer setRoutes:[RCTConvert RMFCoordinateArrayArray:routes]];
   }];
 }
 
 RCT_EXPORT_METHOD(setDirections:(nonnull NSNumber *)reactTag
                   withDirections:(NSString*)directions)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFDirectionsRenderer class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFDirectionsRenderer* renderer = (RMFDirectionsRenderer*)view;
-      [renderer.map4dDirectionsRenderer setRoutesWithJson:directions];
-    }
+  [self withRendererForTag:reactTag handler:^(RMFDirectionsRenderer *renderer) {
+    [renderer.map4dDirectionsRenderer setRoutesWithJson:directions];
   }];
 }
 

@@ -1,5 +1,4 @@
 const path = require('path');
-const blacklist = require('metro-config/src/defaults/blacklist');
 const escape = require('escape-string-regexp');
 const pak = require('../package.json');
 
@@ -9,6 +8,22 @@ const modules = Object.keys({
   ...pak.peerDependencies,
 });
 
+const sepPattern = path.sep === '\\' ? '\\\\' : '/';
+
+const blacklistPatterns = [
+  ...modules.map(
+    (m) =>
+      new RegExp(
+        `^${escape(path.join(root, 'node_modules', m))}${sepPattern}.*$`
+      )
+  ),
+  new RegExp(`^${escape(path.join(root, 'example-new-arch'))}${sepPattern}.*$`),
+];
+
+const blacklistRE = new RegExp(
+  `(${blacklistPatterns.map((pattern) => pattern.source).join('|')})`
+);
+
 module.exports = {
   projectRoot: __dirname,
   watchFolders: [root],
@@ -16,12 +31,7 @@ module.exports = {
   // We need to make sure that only one version is loaded for peerDependencies
   // So we blacklist them at the root, and alias them to the versions in example's node_modules
   resolver: {
-    blacklistRE: blacklist(
-      modules.map(
-        (m) =>
-          new RegExp(`^${escape(path.join(root, 'node_modules', m))}\\/.*$`)
-      )
-    ),
+    blacklistRE,
 
     extraNodeModules: modules.reduce((acc, name) => {
       acc[name] = path.join(__dirname, 'node_modules', name);

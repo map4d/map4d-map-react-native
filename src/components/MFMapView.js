@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import {ViewPropTypes, ColorPropType} from 'deprecated-react-native-prop-types';
+import {getMap4dMapNativeModule} from '../native/Map4dMapNativeModule';
+import {runViewManagerCommand} from '../native/ViewManagerCommand';
 import {
   requireNativeComponent,
   Platform,
-  NativeModules,
   findNodeHandle
 } from 'react-native';
 
@@ -142,6 +143,7 @@ const propTypes = {
    * Callback that is called when user taps on location Button
    */
   onMyLocationButtonPress: PropTypes.func,
+
 };
 
 
@@ -171,7 +173,7 @@ class MFMapView extends React.Component {
 
   getCamera() {
     if (Platform.OS === 'android') {
-      return NativeModules.Map4dMap.getCamera(this._getHandle());
+      return this._runMap4dMapModuleMethod('getCamera', [this._getHandle()]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('getCamera', []);
     }
@@ -180,7 +182,7 @@ class MFMapView extends React.Component {
 
   getBounds() {
     if (Platform.OS === 'android') {
-      return NativeModules.Map4dMap.getBounds(this._getHandle());
+      return this._runMap4dMapModuleMethod('getBounds', [this._getHandle()]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('getBounds', []);
     }
@@ -189,7 +191,7 @@ class MFMapView extends React.Component {
 
   getMyLocation() {
     if (Platform.OS === 'android') {
-      return NativeModules.Map4dMap.getMyLocation(this._getHandle());
+      return this._runMap4dMapModuleMethod('getMyLocation', [this._getHandle()]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('getMyLocation', []);
     }
@@ -252,10 +254,10 @@ class MFMapView extends React.Component {
 
   cameraForBounds(boundsData) {
     if (Platform.OS === 'android') {
-      return NativeModules.Map4dMap.cameraForBounds(
+      return this._runMap4dMapModuleMethod('cameraForBounds', [
         this._getHandle(),
         boundsData
-      );
+      ]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('cameraForBounds', [boundsData]);
     }
@@ -274,10 +276,10 @@ class MFMapView extends React.Component {
    */
   pointForCoordinate(coordinate) {
     if (Platform.OS === 'android') {
-      return NativeModules.Map4dMap.pointForCoordinate(
+      return this._runMap4dMapModuleMethod('pointForCoordinate', [
         this._getHandle(),
         coordinate
-      );
+      ]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('pointForCoordinate', [coordinate]);
     }
@@ -295,10 +297,10 @@ class MFMapView extends React.Component {
    */
   coordinateForPoint(point) {
     if (Platform.OS === 'android') {
-      return NativeModules.Map4dMap.coordinateForPoint(
+      return this._runMap4dMapModuleMethod('coordinateForPoint', [
         this._getHandle(),
         point
-      );
+      ]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('coordinateForPoint', [point]);
     }
@@ -309,40 +311,32 @@ class MFMapView extends React.Component {
     return findNodeHandle(this.map);
   }
 
+  _runMap4dMapModuleMethod(name, args) {
+    const map4dMapNativeModule = getMap4dMapNativeModule();
+
+    if (
+      !map4dMapNativeModule ||
+      typeof map4dMapNativeModule[name] !== 'function'
+    ) {
+      return Promise.reject(
+        `Map4dMap native method "${name}" is unavailable`
+      );
+    }
+
+    return map4dMapNativeModule[name](...args);
+  }
+
   _runCommand(name, args) {
-    switch (Platform.OS) {
-      case 'android':
-        return NativeModules.UIManager.dispatchViewManagerCommand(
-          this._getHandle(),
-          this._uiManagerCommand(name),
-          args
-        );
-
-      case 'ios':
-        return this._mapManagerCommand(name)(this._getHandle(), ...args);
-
-      default:
-        return Promise.reject(`Invalid platform was passed: ${Platform.OS}`);
-    }
+    return runViewManagerCommand({
+      componentName: 'RMFMapView',
+      moduleName: 'RMFMapView',
+      commandName: name,
+      args,
+      reactTag: this._getHandle(),
+      platform: Platform.OS,
+      rejectOnError: true,
+    });
   }
-
-  _uiManagerCommand(name) {
-    const UIManager = NativeModules.UIManager;
-    const componentName = "RMFMapView";
-
-    if (!UIManager.getViewManagerConfig) {
-      // RN < 0.58
-      return UIManager[componentName].Commands[name];
-    }
-
-    // RN >= 0.58        
-    return UIManager.getViewManagerConfig(componentName).Commands[name];
-  }
-
-  _mapManagerCommand(name) {
-    return NativeModules[`RMFMapView`][name];
-  }
-
 
   render() {
     let props;

@@ -18,6 +18,26 @@
 
 RCT_EXPORT_MODULE(RMFPOI)
 
+- (void)withPOIForTag:(nonnull NSNumber *)reactTag
+               handler:(void (^)(RMFPOI *poi))handler
+{
+  RCTUIManager *uiManager = self.bridge.uiManager;
+  if (uiManager == nil) {
+    RCTLogError(@"UIManager is unavailable on iOS runtime");
+    return;
+  }
+
+  [uiManager addUIBlock:^(__unused RCTUIManager *manager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    id view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RMFPOI class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RMFPOI, got: %@", view);
+      return;
+    }
+
+    handler((RMFPOI *)view);
+  }];
+}
+
 - (UIView *)view {
   RMFPOI * poi = [[RMFPOI alloc] init];
   return poi;
@@ -39,44 +59,26 @@ RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_METHOD(setCoordinate:(nonnull NSNumber *)reactTag
                   withCoordinate:(id)coordinate)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setCoordinate:[RCTConvert CLLocationCoordinate2D:coordinate]];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setCoordinate:[RCTConvert CLLocationCoordinate2D:coordinate]];
   }];
 }
 
 RCT_EXPORT_METHOD(setTitle:(nonnull NSNumber *)reactTag
                   withTitle:(NSString*)title)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setTitle:title];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setTitle:title];
   }];
 }
 
 RCT_EXPORT_METHOD(setTitleColor:(nonnull NSNumber *)reactTag
                   withColor:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      UIColor* color = [RCTConvert UIColor:json];
-      if (color != nil) {
-        [poi setTitleColor:color];
-      }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    UIColor* color = [RCTConvert UIColor:json];
+    if (color != nil) {
+      [poi setTitleColor:color];
     }
   }];
 }
@@ -84,84 +86,48 @@ RCT_EXPORT_METHOD(setTitleColor:(nonnull NSNumber *)reactTag
 RCT_EXPORT_METHOD(setSubTitle:(nonnull NSNumber *)reactTag
                   withSubTitle:(NSString*)subTitle)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setSubtitle:subTitle];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setSubtitle:subTitle];
   }];
 }
 
 RCT_EXPORT_METHOD(setPoiType:(nonnull NSNumber *)reactTag
                   withType:(NSString*)type)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setPoiType:type];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setPoiType:type];
   }];
 }
 
 RCT_EXPORT_METHOD(setIcon:(nonnull NSNumber *)reactTag
                   withIcon:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setIcon:[RCTConvert RMFIcon:json]];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setIcon:[RCTConvert RMFIcon:json]];
   }];
 }
 
 RCT_EXPORT_METHOD(setZIndex:(nonnull NSNumber *)reactTag
                   withZIndex:(float)zIndex)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setZIndex:zIndex];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setZIndex:zIndex];
   }];
 }
 
 RCT_EXPORT_METHOD(setVisible:(nonnull NSNumber *)reactTag
                   visible:(BOOL)visible)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setVisible:visible];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setVisible:visible];
   }];
 }
 
 RCT_EXPORT_METHOD(setUserData:(nonnull NSNumber *)reactTag
                   userData:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPOI class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-    } else {
-      RMFPOI *poi = (RMFPOI *)view;
-      [poi setUserData:[RCTConvert NSDictionary:json]];
-    }
+  [self withPOIForTag:reactTag handler:^(RMFPOI *poi) {
+    [poi setUserData:[RCTConvert NSDictionary:json]];
   }];
 }
 

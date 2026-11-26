@@ -5,10 +5,13 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.UIManager;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.uimanager.NativeViewHierarchyManager;
 import com.facebook.react.uimanager.UIBlock;
+import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.UIManagerModule;
 
 import android.view.View;
@@ -26,6 +29,8 @@ interface ResolveViewCallback {
 
 public class Map4dMapModule extends ReactContextBaseJavaModule {
 
+  public static final String NAME = "Map4dMap";
+
     private final ReactApplicationContext reactContext;
 
     public Map4dMapModule(ReactApplicationContext reactContext) {
@@ -35,14 +40,35 @@ public class Map4dMapModule extends ReactContextBaseJavaModule {
 
     @Override
     public String getName() {
-        return "Map4dMap";
+      return NAME;
     }
 
     private void getView(final int tag, final ResolveViewCallback callback) {
       final ReactApplicationContext context = getReactApplicationContext();
 
-      UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-      uiManager.addUIBlock(new UIBlock()
+      final UIManager uiManager = UIManagerHelper.getUIManagerForReactTag(context, tag);
+      if (uiManager != null) {
+        UiThreadUtil.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            View view = uiManager.resolveView(tag);
+            if (view == null) {
+              Log.e(getName(), "View with tag: " + tag + " was not found");
+            }
+            callback.found(view);
+          }
+        });
+        return;
+      }
+
+      UIManagerModule legacyUIManager = context.getNativeModule(UIManagerModule.class);
+      if (legacyUIManager == null) {
+        Log.e(getName(), "Could not get UIManager to resolve tag: " + tag);
+        callback.found(null);
+        return;
+      }
+
+      legacyUIManager.addUIBlock(new UIBlock()
       {
         @Override
         public void execute(NativeViewHierarchyManager nvhm)
@@ -152,6 +178,7 @@ public class Map4dMapModule extends ReactContextBaseJavaModule {
     });
   }
 
+  @ReactMethod
   public void isMyLocationButtonEnabled(final int tag, final Promise promise) {
     getView(tag, new ResolveViewCallback(){
       @Override
@@ -167,20 +194,15 @@ public class Map4dMapModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void pointForCoordinate(final int tag, ReadableMap coordinate, final Promise promise) {
-    final ReactApplicationContext context = getReactApplicationContext();
-
     final MFLocationCoordinate coord = new MFLocationCoordinate(
             coordinate.hasKey("latitude") ? coordinate.getDouble("latitude") : 0.0,
             coordinate.hasKey("longitude") ? coordinate.getDouble("longitude") : 0.0
     );
 
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-    uiManager.addUIBlock(new UIBlock()
-    {
+    getView(tag, new ResolveViewCallback() {
       @Override
-      public void execute(NativeViewHierarchyManager nvhm)
-      {
-        RMFMapView mapView = (RMFMapView) nvhm.resolveView(tag);
+      public void found(View view) {
+        RMFMapView mapView = (RMFMapView) view;
         if (!validateMapView(mapView, promise)) {
           return;
         }
@@ -198,20 +220,15 @@ public class Map4dMapModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void coordinateForPoint(final int tag, ReadableMap point, final Promise promise) {
-    final ReactApplicationContext context = getReactApplicationContext();
-
     final Point pt = new Point(
             point.hasKey("x") ? (int)(point.getDouble("x")) : 0,
             point.hasKey("y") ? (int)(point.getDouble("y")) : 0
     );
 
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-    uiManager.addUIBlock(new UIBlock()
-    {
+    getView(tag, new ResolveViewCallback() {
       @Override
-      public void execute(NativeViewHierarchyManager nvhm)
-      {
-        RMFMapView mapView = (RMFMapView) nvhm.resolveView(tag);
+      public void found(View view) {
+        RMFMapView mapView = (RMFMapView) view;
         if (!validateMapView(mapView, promise)) {
           return;
         }
@@ -229,18 +246,13 @@ public class Map4dMapModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void cameraForBounds(final int tag, ReadableMap boundData, final Promise promise) {
-    final ReactApplicationContext context = getReactApplicationContext();
-    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
-
     final ReadableMap bounds = boundData.getMap("bounds");
     final ReadableMap padding = boundData.getMap("padding");
 
-    uiManager.addUIBlock(new UIBlock()
-    {
+    getView(tag, new ResolveViewCallback() {
       @Override
-      public void execute(NativeViewHierarchyManager nvhm)
-      {
-        RMFMapView mapView = (RMFMapView) nvhm.resolveView(tag);
+      public void found(View view) {
+        RMFMapView mapView = (RMFMapView) view;
         if (!validateMapView(mapView, promise)) {
           return;
         }

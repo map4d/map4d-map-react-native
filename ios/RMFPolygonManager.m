@@ -17,6 +17,26 @@
 
 RCT_EXPORT_MODULE(RMFPolygon)
 
+- (void)withPolygonForTag:(nonnull NSNumber *)reactTag
+                  handler:(void (^)(RMFPolygon *polygon))handler
+{
+  RCTUIManager *uiManager = self.bridge.uiManager;
+  if (uiManager == nil) {
+    RCTLogError(@"UIManager is unavailable on iOS runtime");
+    return;
+  }
+
+  [uiManager addUIBlock:^(__unused RCTUIManager *manager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    id view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RMFPolygon class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
+      return;
+    }
+
+    handler((RMFPolygon *)view);
+  }];
+}
+
 - (UIView *)view {
   RMFPolygon* polygon = [[RMFPolygon alloc] init];
   return polygon;
@@ -37,44 +57,26 @@ RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_METHOD(setCoordinates:(nonnull NSNumber *)reactTag
                   withCoordinates:(id)coordinates)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      [polygon setCoordinates:[RCTConvert RMFCoordinateArray:coordinates]];
-    }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    [polygon setCoordinates:[RCTConvert RMFCoordinateArray:coordinates]];
   }];
 }
 
 RCT_EXPORT_METHOD(setHoles:(nonnull NSNumber *)reactTag
                   withHoles:(id)holes)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      [polygon setHoles:[RCTConvert RMFCoordinateArrayArray:holes]];
-    }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    [polygon setHoles:[RCTConvert RMFCoordinateArrayArray:holes]];
   }];
 }
 
 RCT_EXPORT_METHOD(setFillColor:(nonnull NSNumber *)reactTag
                   color:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      UIColor* color = [RCTConvert UIColor:json];
-      if (color != nil) {
-        [polygon setFillColor:color];
-      }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    UIColor* color = [RCTConvert UIColor:json];
+    if (color != nil) {
+      [polygon setFillColor:color];
     }
   }];
 }
@@ -82,16 +84,10 @@ RCT_EXPORT_METHOD(setFillColor:(nonnull NSNumber *)reactTag
 RCT_EXPORT_METHOD(setStrokeColor:(nonnull NSNumber *)reactTag
                   color:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      UIColor* color = [RCTConvert UIColor:json];
-      if (color != nil) {
-        [polygon setStrokeColor:color];
-      }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    UIColor* color = [RCTConvert UIColor:json];
+    if (color != nil) {
+      [polygon setStrokeColor:color];
     }
   }];
 }
@@ -99,42 +95,24 @@ RCT_EXPORT_METHOD(setStrokeColor:(nonnull NSNumber *)reactTag
 RCT_EXPORT_METHOD(setStrokeWidth:(nonnull NSNumber *)reactTag
                   width:(CGFloat)width)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      [polygon setStrokeWidth:width];
-    }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    [polygon setStrokeWidth:width];
   }];
 }
 
 RCT_EXPORT_METHOD(setVisible:(nonnull NSNumber *)reactTag
                   visible:(BOOL)visible)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      [polygon setVisible:visible];
-    }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    [polygon setVisible:visible];
   }];
 }
 
 RCT_EXPORT_METHOD(setUserData:(nonnull NSNumber *)reactTag
                   userData:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFPolygon class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFPolygon, got: %@", view);
-    } else {
-      RMFPolygon *polygon = (RMFPolygon *)view;
-      [polygon setUserData:[RCTConvert NSDictionary:json]];
-    }
+  [self withPolygonForTag:reactTag handler:^(RMFPolygon *polygon) {
+    [polygon setUserData:[RCTConvert NSDictionary:json]];
   }];
 }
 

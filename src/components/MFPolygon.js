@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ViewPropTypes, ColorPropType} from 'deprecated-react-native-prop-types';
+import {runViewManagerCommand} from '../native/ViewManagerCommand';
 import {
   requireNativeComponent,
-  Platform,
-  NativeModules,
   findNodeHandle,
   processColor
 } from 'react-native';
@@ -135,39 +134,13 @@ class MFPolygon extends React.Component {
   }
 
   _runCommand(name, args) {
-    switch (Platform.OS) {
-      case 'android':
-        NativeModules.UIManager.dispatchViewManagerCommand(
-          this._getHandle(),
-          this._uiManagerCommand(name),
-          args
-        );
-        break;
-
-      case 'ios':
-        this._mapManagerCommand(name)(this._getHandle(), ...args);
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  _uiManagerCommand(name) {
-    const UIManager = NativeModules.UIManager;
-    const componentName = "RMFPolygon";
-
-    if (!UIManager.getViewManagerConfig) {
-      // RN < 0.58
-      return UIManager[componentName].Commands[name];
-    }
-
-    // RN >= 0.58        
-    return UIManager.getViewManagerConfig(componentName).Commands[name];
-  }
-
-  _mapManagerCommand(name) {
-    return NativeModules[`RMFPolygon`][name];
+    return runViewManagerCommand({
+      componentName: 'RMFPolygon',
+      moduleName: 'RMFPolygon',
+      commandName: name,
+      args,
+      reactTag: this._getHandle(),
+    });
   }
 
   render() {

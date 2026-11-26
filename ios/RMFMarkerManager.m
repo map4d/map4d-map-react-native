@@ -16,6 +16,26 @@
 
 RCT_EXPORT_MODULE(RMFMarker)
 
+- (void)withMarkerForTag:(nonnull NSNumber *)reactTag
+                 handler:(void (^)(RMFMarker *marker))handler
+{
+    RCTUIManager *uiManager = self.bridge.uiManager;
+    if (uiManager == nil) {
+        RCTLogError(@"UIManager is unavailable on iOS runtime");
+        return;
+    }
+
+    [uiManager addUIBlock:^(__unused RCTUIManager *manager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+        id view = viewRegistry[reactTag];
+        if (![view isKindOfClass:[RMFMarker class]]) {
+            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
+            return;
+        }
+
+        handler((RMFMarker *)view);
+    }];
+}
+
 - (UIView *)view {
   RMFMarker * marker = [[RMFMarker alloc] init];
   return marker;
@@ -44,112 +64,64 @@ RCT_EXPORT_VIEW_PROPERTY(onDragEnd, RCTDirectEventBlock)
 RCT_EXPORT_METHOD(setCoordinate:(nonnull NSNumber *)reactTag
                   withCoordinate:(id)coordinate)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-            RMFMarker *marker = (RMFMarker *)view;
-            [marker setCoordinate:[RCTConvert CLLocationCoordinate2D:coordinate]];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+        [marker setCoordinate:[RCTConvert CLLocationCoordinate2D:coordinate]];
     }];
 }
 
 RCT_EXPORT_METHOD(setRotation:(nonnull NSNumber *)reactTag
                   rotation:(double)rotation)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-            RMFMarker *marker = (RMFMarker *)view;
-            [marker setRotation:rotation];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+        [marker setRotation:rotation];
     }];
 }
 
 RCT_EXPORT_METHOD(setTitle:(nonnull NSNumber *)reactTag
                   title:(NSString*)title)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-            RMFMarker *marker = (RMFMarker *)view;
-            [marker setTitle:title];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+        [marker setTitle:title];
     }];
 }
 
 RCT_EXPORT_METHOD(setSnippet:(nonnull NSNumber *)reactTag
                   snippet:(NSString*)snippet)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-            RMFMarker *marker = (RMFMarker *)view;
-            [marker setSnippet:snippet];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+        [marker setSnippet:snippet];
     }];
 }
 
 RCT_EXPORT_METHOD(setDraggable:(nonnull NSNumber *)reactTag
                   draggable:(BOOL)draggable)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-            RMFMarker *marker = (RMFMarker *)view;
-            [marker setDraggable:draggable];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+        [marker setDraggable:draggable];
     }];
 }
 
 RCT_EXPORT_METHOD(setZIndex:(nonnull NSNumber *)reactTag
                   zIndex:(float)zIndex)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-            RMFMarker *marker = (RMFMarker *)view;
-            [marker setZIndex:zIndex];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+        [marker setZIndex:zIndex];
     }];
 }
 
 RCT_EXPORT_METHOD(setVisible:(nonnull NSNumber *)reactTag
                   visible:(BOOL)visible)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-          RMFMarker *marker = (RMFMarker *)view;
-          [marker setVisible:visible];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+      [marker setVisible:visible];
     }];
 }
 
 RCT_EXPORT_METHOD(setUserData:(nonnull NSNumber *)reactTag
                   userData:(id)json)
 {
-    [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        id view = viewRegistry[reactTag];
-        if (![view isKindOfClass:[RMFMarker class]]) {
-            RCTLogError(@"Invalid view returned from registry, expecting RMFMarker, got: %@", view);
-        } else {
-          RMFMarker *marker = (RMFMarker *)view;
-          [marker setUserData:[RCTConvert NSDictionary:json]];
-        }
+    [self withMarkerForTag:reactTag handler:^(RMFMarker *marker) {
+      [marker setUserData:[RCTConvert NSDictionary:json]];
     }];
 }
 

@@ -12,24 +12,38 @@ yarn
 
 > While it's possible to use [`npm`](https://github.com/npm/cli), the tooling is built around [`yarn`](https://classic.yarnpkg.com/), so you'll have an easier time if you use `yarn` for development.
 
-While developing, you can run the [example app](/example/) to test your changes. Any changes you make in your library's JavaScript code will be reflected in the example app without a rebuild. If you change any native code, then you'll need to rebuild the example app.
+While developing, you can run the demo apps to test your changes. Any changes you make in your library's JavaScript code will be reflected in the demo app without a rebuild. If you change any native code, then you'll need to rebuild the demo app.
 
-To start the packager:
+This repository currently has 2 demo apps:
+- `example`: legacy demo (React Native 0.71)
+- `example-new-arch`: new architecture demo (React Native 0.86)
+
+Run one demo at a time.
+
+Run legacy demo (`example`):
 
 ```sh
 yarn example start
-```
-
-To run the example app on Android:
-
-```sh
 yarn example android
+# On macOS:
+yarn example ios
 ```
 
-To run the example app on iOS:
+Run new architecture demo (`example-new-arch`):
 
 ```sh
-yarn example ios
+yarn example:new start
+yarn example:new android
+# On macOS:
+yarn example:new ios
+```
+
+When switching between `example` and `example-new-arch`, restart Metro with cache reset to avoid stale module map issues:
+
+```sh
+yarn example start --reset-cache
+# or
+yarn example:new start --reset-cache
 ```
 
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
@@ -54,6 +68,8 @@ yarn test
 To edit the Objective-C files, open `example/ios/Map4dMapExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-map4d-map`.
 
 To edit the Kotlin files, open `example/android` in Android studio and find the source files at `reactnativemap4dmap` under `Android`.
+
+For New Architecture demo native files, open `example-new-arch/ios/Map4dMapExample.xcworkspace` in XCode or `example-new-arch/android` in Android Studio.
 
 ### Commit message convention
 
@@ -90,13 +106,19 @@ yarn release
 
 The `package.json` file contains various scripts for common tasks:
 
-- `yarn bootstrap`: setup project by installing all dependencies and pods.
+- `yarn bootstrap`: setup root + legacy demo dependencies and legacy iOS pods.
+- `yarn bootstrap:new`: setup new architecture demo dependencies and iOS pods.
 - `yarn typescript`: type-check files with TypeScript.
 - `yarn lint`: lint files with ESLint.
 - `yarn test`: run unit tests with Jest.
+- `yarn example`: install dependencies in `example`.
 - `yarn example start`: start the Metro server for the example app.
 - `yarn example android`: run the example app on Android.
 - `yarn example ios`: run the example app on iOS.
+- `yarn example:new`: install dependencies for `example-new-arch`.
+- `yarn example:new:start`: start Metro for `example-new-arch`.
+- `yarn pods`: install iOS pods for `example`.
+- `yarn pods:new`: install iOS pods for `example-new-arch`.
 
 ### Sending a pull request
 

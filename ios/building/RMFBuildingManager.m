@@ -16,6 +16,26 @@
 
 RCT_EXPORT_MODULE(RMFBuilding)
 
+- (void)withBuildingForTag:(nonnull NSNumber *)reactTag
+                   handler:(void (^)(RMFBuilding *building))handler
+{
+  RCTUIManager *uiManager = self.bridge.uiManager;
+  if (uiManager == nil) {
+    RCTLogError(@"UIManager is unavailable on iOS runtime");
+    return;
+  }
+
+  [uiManager addUIBlock:^(__unused RCTUIManager *manager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    id view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RMFBuilding class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
+      return;
+    }
+
+    handler((RMFBuilding *)view);
+  }];
+}
+
 - (UIView *)view {
   RMFBuilding *building = [[RMFBuilding alloc] init];
   return building;
@@ -35,98 +55,50 @@ RCT_EXPORT_VIEW_PROPERTY(userData, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 
 RCT_EXPORT_METHOD(setName:(nonnull NSNumber *)reactTag name:(NSString *)name) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setName:name];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setName:name];
   }];
 }
 
 RCT_EXPORT_METHOD(setScale:(nonnull NSNumber *)reactTag scale:(double)scale) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setScale:scale];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setScale:scale];
   }];
 }
 
 RCT_EXPORT_METHOD(setBearing:(nonnull NSNumber *)reactTag bearing:(CGFloat)bearing) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setBearing:bearing];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setBearing:bearing];
   }];
 }
 
 RCT_EXPORT_METHOD(setElevation:(nonnull NSNumber *)reactTag elevation:(double)elevation) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setElevation:elevation];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setElevation:elevation];
   }];
 }
 
 RCT_EXPORT_METHOD(setSelected:(nonnull NSNumber *)reactTag selected:(BOOL)selected) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setSelected:selected];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setSelected:selected];
   }];
 }
 
 RCT_EXPORT_METHOD(setTouchable:(nonnull NSNumber *)reactTag touchable:(BOOL)touchable) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setTouchable:touchable];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setTouchable:touchable];
   }];
 }
 
 RCT_EXPORT_METHOD(setVisible:(nonnull NSNumber *)reactTag visible:(BOOL)visible) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setVisible:visible];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setVisible:visible];
   }];
 }
 
 RCT_EXPORT_METHOD(setUserData:(nonnull NSNumber *)reactTag userData:(id)json) {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFBuilding class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFBuilding, got: %@", view);
-    } else {
-      RMFBuilding *building = (RMFBuilding *)view;
-      [building setUserData:[RCTConvert NSDictionary:json]];
-    }
+  [self withBuildingForTag:reactTag handler:^(RMFBuilding *building) {
+    [building setUserData:[RCTConvert NSDictionary:json]];
   }];
 }
 

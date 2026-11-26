@@ -28,8 +28,12 @@
     "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
+    "example:new": "yarn --cwd example-new-arch",
+    "example:new:start": "yarn --cwd example-new-arch start",
     "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "pods:new": "cd example-new-arch && pod-install --quiet",
+    "bootstrap": "yarn example && yarn && yarn pods",
+    "bootstrap:new": "yarn example:new && yarn pods:new"
   },
   "keywords": [
     "react",
@@ -51,35 +55,39 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.2",
     "@commitlint/config-conventional": "^11.0.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@release-it/conventional-changelog": "^2.0.0",
-    "@types/jest": "^26.0.0",
-    "@types/react": "^16.9.19",
-    "@types/react-native": "0.62.13",
+    "@react-native/babel-preset": "0.86.0",
+    "@react-native/jest-preset": "0.86.0",
+    "@types/jest": "^29.5.14",
+    "@types/react": "^19.1.8",
     "commitlint": "^11.0.0",
     "deprecated-react-native-prop-types": "^2.3.0",
     "eslint": "^7.2.0",
     "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-prettier": "^3.1.3",
     "husky": "^6.0.0",
-    "jest": "^26.0.1",
+    "jest": "^29.7.0",
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
-    "react": "16.13.1",
-    "react-native": "0.63.4",
-    "react-native-builder-bob": "^0.18.2",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-builder-bob": "^0.40.12",
     "release-it": "^14.2.2",
-    "typescript": "^4.1.3"
+    "typescript": "^5.6.3"
   },
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
   },
   "jest": {
-    "preset": "react-native",
+    "preset": "@react-native/jest-preset",
     "modulePathIgnorePatterns": [
+      "<rootDir>/example/",
       "<rootDir>/example/node_modules",
+      "<rootDir>/example-new-arch/",
       "<rootDir>/lib/"
     ]
   },
@@ -148,5 +156,13 @@
         }
       ]
     ]
+  },
+  "codegenConfig": {
+    "name": "Map4dMapSpec",
+    "type": "modules",
+    "jsSrcsDir": "src/specs",
+    "android": {
+      "javaPackageName": "com.reactnativemap4dmap"
+    }
   }
 }

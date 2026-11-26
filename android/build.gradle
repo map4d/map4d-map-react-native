@@ -18,10 +18,10 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
-    compileSdkVersion safeExtGet('Map4dMap_compileSdkVersion', 30)
+    compileSdkVersion safeExtGet('Map4dMap_compileSdkVersion', 33)
     defaultConfig {
         minSdkVersion safeExtGet('Map4dMap_minSdkVersion', 21)
-        targetSdkVersion safeExtGet('Map4dMap_targetSdkVersion', 30)
+        targetSdkVersion safeExtGet('Map4dMap_targetSdkVersion', 33)
         versionCode 1
         versionName "1.0"
 

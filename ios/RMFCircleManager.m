@@ -17,6 +17,26 @@
 
 RCT_EXPORT_MODULE(RMFCircle)
 
+- (void)withCircleForTag:(nonnull NSNumber *)reactTag
+                 handler:(void (^)(RMFCircle *circle))handler
+{
+  RCTUIManager *uiManager = self.bridge.uiManager;
+  if (uiManager == nil) {
+    RCTLogError(@"UIManager is unavailable on iOS runtime");
+    return;
+  }
+
+  [uiManager addUIBlock:^(__unused RCTUIManager *manager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    id view = viewRegistry[reactTag];
+    if (![view isKindOfClass:[RMFCircle class]]) {
+      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
+      return;
+    }
+
+    handler((RMFCircle *)view);
+  }];
+}
+
 - (UIView *)view {
   RMFCircle * circle = [[RMFCircle alloc] init];
   return circle;
@@ -37,44 +57,26 @@ RCT_EXPORT_VIEW_PROPERTY(onPress, RCTBubblingEventBlock)
 RCT_EXPORT_METHOD(setCenter:(nonnull NSNumber *)reactTag
                   withCoordinate:(id)coordinate)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      [circle setCenterCoordinate:[RCTConvert CLLocationCoordinate2D:coordinate]];
-    }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    [circle setCenterCoordinate:[RCTConvert CLLocationCoordinate2D:coordinate]];
   }];
 }
 
 RCT_EXPORT_METHOD(setRadius:(nonnull NSNumber *)reactTag
                   withRadius:(double)radius)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      [circle setRadius:radius];
-    }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    [circle setRadius:radius];
   }];
 }
 
 RCT_EXPORT_METHOD(setFillColor:(nonnull NSNumber *)reactTag
                   color:(id)color)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      UIColor* fillCorlor = [RCTConvert UIColor:color];
-      if (fillCorlor != nil) {
-        [circle setFillColor:fillCorlor];
-      }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    UIColor* fillCorlor = [RCTConvert UIColor:color];
+    if (fillCorlor != nil) {
+      [circle setFillColor:fillCorlor];
     }
   }];
 }
@@ -82,16 +84,10 @@ RCT_EXPORT_METHOD(setFillColor:(nonnull NSNumber *)reactTag
 RCT_EXPORT_METHOD(setStrokeColor:(nonnull NSNumber *)reactTag
                   color:(id)color)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      UIColor* strokeColor = [RCTConvert UIColor:color];
-      if (strokeColor != nil) {
-        [circle setStrokeColor:strokeColor];
-      }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    UIColor* strokeColor = [RCTConvert UIColor:color];
+    if (strokeColor != nil) {
+      [circle setStrokeColor:strokeColor];
     }
   }];
 }
@@ -99,56 +95,32 @@ RCT_EXPORT_METHOD(setStrokeColor:(nonnull NSNumber *)reactTag
 RCT_EXPORT_METHOD(setStrokeWidth:(nonnull NSNumber *)reactTag
                   width:(double)width)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      [circle setStrokeWidth:width];
-    }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    [circle setStrokeWidth:width];
   }];
 }
 
 RCT_EXPORT_METHOD(setZIndex:(nonnull NSNumber *)reactTag
                   zIndex:(float)zIndex)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      [circle setZIndex:zIndex];
-    }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    [circle setZIndex:zIndex];
   }];
 }
 
 RCT_EXPORT_METHOD(setVisible:(nonnull NSNumber *)reactTag
                   visible:(BOOL)visible)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      [circle setVisible:visible];
-    }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    [circle setVisible:visible];
   }];
 }
 
 RCT_EXPORT_METHOD(setUserData:(nonnull NSNumber *)reactTag
                   userData:(id)json)
 {
-  [self.bridge.uiManager addUIBlock:^(__unused RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-    id view = viewRegistry[reactTag];
-    if (![view isKindOfClass:[RMFCircle class]]) {
-      RCTLogError(@"Invalid view returned from registry, expecting RMFCircle, got: %@", view);
-    } else {
-      RMFCircle *circle = (RMFCircle *)view;
-      [circle setUserData:[RCTConvert NSDictionary:json]];
-    }
+  [self withCircleForTag:reactTag handler:^(RMFCircle *circle) {
+    [circle setUserData:[RCTConvert NSDictionary:json]];
   }];
 }
 
