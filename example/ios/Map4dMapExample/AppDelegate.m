@@ -7,12 +7,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   self.dependencyProvider = [RCTAppDependencyProvider new];
   self.reactNativeFactory = [[RCTReactNativeFactory alloc] initWithDelegate:self];
-  [self.reactNativeFactory startReactNativeWithModuleName:@"Map4dMapExample"
-                                                 inWindow:self.window
-                                            launchOptions:launchOptions];
   return YES;
 }
 

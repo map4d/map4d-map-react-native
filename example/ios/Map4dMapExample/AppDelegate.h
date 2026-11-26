@@ -4,7 +4,6 @@
 
 @interface AppDelegate : RCTDefaultReactNativeFactoryDelegate <UIApplicationDelegate>
 
-@property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) RCTReactNativeFactory *reactNativeFactory;
 
 @end
