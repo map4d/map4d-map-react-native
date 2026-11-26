@@ -131,7 +131,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
     MFMarkerManager markerManager = new MFMarkerManager(map);
     markerCollection = markerManager.newCollection();
 
-    manager.pushEvent(getContext(), this, "onMapReady", new WritableNativeMap());
+    manager.pushEvent(context, this, "onMapReady", new WritableNativeMap());
 
     markerCollection.setOnMarkerDragListener((new Map4D.OnMarkerDragListener() {
       @Override
@@ -144,12 +144,12 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         //Event for MFMapView
         WritableMap event = getMarkerEventData(marker, dragPointX, dragPointY);
         event.putString("action", "marker-drag");
-        manager.pushEvent(getContext(), view, "onMarkerDrag", event);
+        manager.pushEvent(context, view, "onMarkerDrag", event);
 
         //Event for MFMarker
         event = getMarkerEventData(marker, dragPointX, dragPointY);
         event.putString("action", "marker-drag");
-        manager.pushEvent(getContext(), rctMarker, "onDrag", event);
+        manager.pushEvent(context, rctMarker, "onDrag", event);
       }
 
       @Override
@@ -160,11 +160,11 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getMarkerEventData(marker, dragPointX, dragPointY);
         event.putString("action", "marker-drag-end");
-        manager.pushEvent(getContext(), view, "onMarkerDrag", event);
+        manager.pushEvent(context, view, "onMarkerDrag", event);
 
         event = getMarkerEventData(marker, dragPointX, dragPointY);
         event.putString("action", "marker-drag-end");
-        manager.pushEvent(getContext(), rctMarker, "onDragEnd", event);
+        manager.pushEvent(context, rctMarker, "onDragEnd", event);
       }
 
       @Override
@@ -175,11 +175,11 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getMarkerEventData(marker, touchPointX, touchPointY);
         event.putString("action", "marker-drag-start");
-        manager.pushEvent(getContext(), view, "onMarkerDrag", event);
+        manager.pushEvent(context, view, "onMarkerDrag", event);
 
         event = getMarkerEventData(marker, touchPointX, touchPointY);
         event.putString("action", "marker-drag-start");
-        manager.pushEvent(getContext(), rctMarker, "onDragStart", event);
+        manager.pushEvent(context, rctMarker, "onDragStart", event);
       }
     }));
 
@@ -192,11 +192,11 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getMarkerEventData(marker, touchPointX, touchPointY);
         event.putString("action", "marker-press");
-        manager.pushEvent(getContext(), view, "onMarkerPress", event);
+        manager.pushEvent(context, view, "onMarkerPress", event);
 
         event = getMarkerEventData(marker, touchPointX, touchPointY);
         event.putString("action", "marker-press");
-        manager.pushEvent(getContext(), rctMarker, "onPress", event);
+        manager.pushEvent(context, rctMarker, "onPress", event);
         return false;
       }
     });
@@ -210,7 +210,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getMarkerEventData(marker, touchPointX, touchPointY);
         event.putString("action", "marker-info-window-press");
-        manager.pushEvent(getContext(), rctMarker, "onPressInfoWindow", event);
+        manager.pushEvent(context, rctMarker, "onPressInfoWindow", event);
       }
     });
 
@@ -223,7 +223,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getPolylineEventData(polyline);
         event.putString("action", "polyline-press");
-        manager.pushEvent(getContext(), rctPolyline, "onPress", event);
+        manager.pushEvent(context, rctPolyline, "onPress", event);
       }
     });
 
@@ -236,7 +236,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getPolygonEventData(polygon);
         event.putString("action", "polygon-press");
-        manager.pushEvent(getContext(), rctPolygon, "onPress", event);
+        manager.pushEvent(context, rctPolygon, "onPress", event);
       }
     });
 
@@ -249,7 +249,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         }
         WritableMap event = getDirectionsRendererEventData(directionsRenderer, i);
         event.putString("action", "directions-press");
-        manager.pushEvent(getContext(), rctDirectionsRenderer, "onPress", event);
+        manager.pushEvent(context, rctDirectionsRenderer, "onPress", event);
       }
     });
 
@@ -263,7 +263,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
 
         WritableMap event = getCircleEventData(circle);
         event.putString("action", "circle-press");
-        manager.pushEvent(getContext(), rctCircle, "onPress", event);
+        manager.pushEvent(context, rctCircle, "onPress", event);
       }
     });
 
@@ -275,7 +275,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
 
       WritableMap event = getBuildingEventData(building);
       event.putString("action", "building-press");
-      manager.pushEvent(getContext(), rctBuilding, "onPress", event);
+      manager.pushEvent(context, rctBuilding, "onPress", event);
     });
 
     map.setOnUserPOIClickListener(new Map4D.OnUserPOIClickListener() {
@@ -288,7 +288,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
 
         WritableMap event = getPOIEventData(poi);
         event.putString("action", "poi-press");
-        manager.pushEvent(getContext(), rctPOI, "onPress", event);
+        manager.pushEvent(context, rctPOI, "onPress", event);
       }
     });
 
@@ -324,7 +324,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         event.putMap("location", locationMap);
         event.putMap("pixel", screenCoordinate);
 
-        manager.pushEvent(getContext(), view, "onPoiPress", event);
+        manager.pushEvent(context, view, "onPoiPress", event);
       }
     });
 
@@ -360,7 +360,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         event.putMap("location", locationMap);
         event.putMap("pixel", screenCoordinate);
 
-        manager.pushEvent(getContext(), view, "onBuildingPress", event);
+        manager.pushEvent(context, view, "onBuildingPress", event);
       }
     });
 
@@ -394,7 +394,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         event.putMap("location", locationMap);
         event.putMap("pixel", screenCoordinate);
 
-        manager.pushEvent(getContext(), view, "onPlacePress", event);
+        manager.pushEvent(context, view, "onPlacePress", event);
       }
     });
 
@@ -437,8 +437,11 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
           else if (value instanceof Integer) {
             propertiesMap.putInt(key, (Integer) value);
           }
-          else if (value instanceof Double) {
-            propertiesMap.putDouble(key, (Double) value);
+          else if (value instanceof Number) {
+            propertiesMap.putDouble(key, ((Number) value).doubleValue());
+          }
+          else if (value != null) {
+            propertiesMap.putString(key, value.toString());
           }
         }
         feature.putMap("properties", propertiesMap);
@@ -449,7 +452,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         feature.putMap("location", featureLocation);
 
         event.putMap("feature", feature);
-        manager.pushEvent(getContext(), view, "onDataSourceFeaturePress", event);
+        manager.pushEvent(context, view, "onDataSourceFeaturePress", event);
       }
     });
 
@@ -468,7 +471,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
 
         event.putMap("location", location);
         event.putMap("pixel", screenCoordinate);
-        manager.pushEvent(getContext(), view, "onPress", event);
+        manager.pushEvent(context, view, "onPress", event);
       }
     });
 
@@ -477,7 +480,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
       public void onCameraMove() {
         WritableMap event = getCameraMap();
         event.putString("action", "camera-move");
-        manager.pushEvent(getContext(), view, "onCameraMove", event);
+        manager.pushEvent(context, view, "onCameraMove", event);
       }
     });
 
@@ -486,7 +489,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
       public void onCameraIdle() {
         WritableMap event = getCameraMap();
         event.putString("action", "camera-idle");
-        manager.pushEvent(getContext(), view, "onCameraIdle", event);
+        manager.pushEvent(context, view, "onCameraIdle", event);
       }
     });
 
@@ -496,7 +499,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
         WritableMap event = getCameraMap();
         event.putString("action", "camera-move-started");
         event.putBoolean("gesture", reason == 1);
-        manager.pushEvent(getContext(), view, "onCameraMoveStart", event);
+        manager.pushEvent(context, view, "onCameraMoveStart", event);
       }
     });
 
@@ -505,7 +508,7 @@ public class RMFMapView extends MFMapView implements OnMapReadyCallback {
       public boolean onMyLocationButtonClick() {
         WritableMap event = new WritableNativeMap();
         event.putString("action", "my-location-button-press");
-        manager.pushEvent(getContext(), view, "onMyLocationButtonPress", event);
+        manager.pushEvent(context, view, "onMyLocationButtonPress", event);
         return false;
       }
     });

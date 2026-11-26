@@ -11,7 +11,19 @@ buildscript {
     }
 }
 
+def isNewArchitectureEnabled() {
+    // To opt-in for the New Architecture, you can either:
+    // - Set `newArchEnabled` to true inside the `gradle.properties` file
+    // - Invoke gradle with `-newArchEnabled=true`
+    // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
 apply plugin: 'com.android.library'
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: "com.facebook.react"
+}
 
 def safeExtGet(prop, fallback) {
     rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -39,6 +51,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    sourceSets.main {
+        java {
+            if (isNewArchitectureEnabled()) {
+                srcDirs += [
+                    "${project.buildDir}/generated/source/codegen/java"
+                ]
+            }
+        }
+    }
 }
 
 repositories {
@@ -56,4 +77,5 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'vn.map4d:Map4dTypes:1.1.+'
     implementation 'vn.map4d:Map4dMap:3.3.+'
+    implementation 'vn.map4d:Map4dMapUtils:0.0.+'
 }

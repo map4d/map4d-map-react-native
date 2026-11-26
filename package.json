@@ -1,6 +1,7 @@
 {
   "name": "react-native-map4d-map",
   "version": "3.0.0",
+  "packageManager": "yarn@1.22.22",
   "description": "Map4dMap SDK for React Native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -28,12 +29,11 @@
     "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
-    "example:new": "yarn --cwd example-new-arch",
-    "example:new:start": "yarn --cwd example-new-arch start",
+    "example:start": "yarn --cwd example start",
+    "example:ios": "yarn --cwd example ios",
+    "example:android": "yarn --cwd example android",
     "pods": "cd example && pod-install --quiet",
-    "pods:new": "cd example-new-arch && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods",
-    "bootstrap:new": "yarn example:new && yarn pods:new"
+    "bootstrap": "yarn && yarn example && yarn pods"
   },
   "keywords": [
     "react",
@@ -57,10 +57,11 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@commitlint/config-conventional": "^11.0.0",
+    "@react-native-community/cli": "^21.0.0",
     "@react-native-community/eslint-config": "^2.0.0",
-    "@release-it/conventional-changelog": "^2.0.0",
     "@react-native/babel-preset": "0.86.0",
     "@react-native/jest-preset": "0.86.0",
+    "@release-it/conventional-changelog": "^2.0.0",
     "@types/jest": "^29.5.14",
     "@types/react": "^19.1.8",
     "commitlint": "^11.0.0",
@@ -123,6 +124,7 @@
       "prettier/prettier": [
         "error",
         {
+          "endOfLine": "auto",
           "quoteProps": "consistent",
           "singleQuote": true,
           "tabWidth": 2,
@@ -137,6 +139,7 @@
     "lib/"
   ],
   "prettier": {
+    "endOfLine": "auto",
     "quoteProps": "consistent",
     "singleQuote": true,
     "tabWidth": 2,
