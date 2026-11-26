@@ -23,5 +23,5 @@
     "strict": true,
     "target": "esnext"
   },
-  "exclude": ["example", "example-new-arch", "lib"]
+  "exclude": ["example", "lib"]
 }

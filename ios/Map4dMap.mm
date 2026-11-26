@@ -45,61 +45,70 @@ RCT_EXPORT_MODULE()
     }];
 }
 
-RCT_EXPORT_METHOD(getCamera:(nonnull NSNumber *)reactTag
-                                    resolver:(RCTPromiseResolveBlock)resolve
-                                    rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(getCamera:(double)reactTag
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject)
 {
-    [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
         resolve([RMFEventResponse fromCameraPosition:[mapView camera]]);
     }];
 }
 
-RCT_EXPORT_METHOD(getBounds:(nonnull NSNumber *)reactTag
-                                    resolver:(RCTPromiseResolveBlock)resolve
-                                    rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(getBounds:(double)reactTag
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject)
 {
-    [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
         resolve([RMFEventResponse fromCoordinateBounds:[mapView getBounds]]);
     }];
 }
 
-RCT_EXPORT_METHOD(getMyLocation:(nonnull NSNumber *)reactTag
-                                    resolver:(RCTPromiseResolveBlock)resolve
-                                    rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(getMyLocation:(double)reactTag
+                      resolve:(RCTPromiseResolveBlock)resolve
+                       reject:(RCTPromiseRejectBlock)reject)
 {
-    [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
         resolve([RMFEventResponse fromCLLocation:[mapView getMyLocation]]);
     }];
 }
 
-RCT_EXPORT_METHOD(pointForCoordinate:(nonnull NSNumber *)reactTag
-                                    coordinate:(id)json
-                                    resolver:(RCTPromiseResolveBlock)resolve
-                                    rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(getMapStyle:(double)reactTag
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject)
 {
-    [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
+        resolve(mapView.mapStyleJSON ?: [NSNull null]);
+    }];
+}
+
+RCT_EXPORT_METHOD(pointForCoordinate:(double)reactTag
+                  coordinate:(NSDictionary *)json
+                     resolve:(RCTPromiseResolveBlock)resolve
+                      reject:(RCTPromiseRejectBlock)reject)
+{
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
         CGPoint point = [mapView.projection pointForCoordinate:[RCTConvert CLLocationCoordinate2D:json]];
         resolve([RMFEventResponse fromCGPoint:point]);
     }];
 }
 
-RCT_EXPORT_METHOD(coordinateForPoint:(nonnull NSNumber *)reactTag
-                                    point:(id)json
-                                    resolver:(RCTPromiseResolveBlock)resolve
-                                    rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(coordinateForPoint:(double)reactTag
+                        point:(NSDictionary *)json
+                     resolve:(RCTPromiseResolveBlock)resolve
+                      reject:(RCTPromiseRejectBlock)reject)
 {
-    [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
         CLLocationCoordinate2D coordinate = [mapView.projection coordinateForPoint:[RCTConvert CGPoint:json]];
         resolve([RMFEventResponse fromCoordinate:coordinate]);
     }];
 }
 
-RCT_EXPORT_METHOD(cameraForBounds:(nonnull NSNumber *)reactTag
-                                    boundsData:(id)json
-                                    resolver:(RCTPromiseResolveBlock)resolve
-                                    rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(cameraForBounds:(double)reactTag
+                  boundsData:(NSDictionary *)json
+                     resolve:(RCTPromiseResolveBlock)resolve
+                      reject:(RCTPromiseRejectBlock)reject)
 {
-    [self withMapViewForTag:reactTag rejecter:reject handler:^(RMFMapView *mapView) {
+    [self withMapViewForTag:@(reactTag) rejecter:reject handler:^(RMFMapView *mapView) {
         MFCameraPosition *camera = nil;
         id data = [RCTConvert NSDictionary:json];
         if (data[@"bounds"]) {

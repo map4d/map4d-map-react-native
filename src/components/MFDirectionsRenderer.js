@@ -146,27 +146,8 @@ class MFDirectionsRenderer extends React.Component {
   }
 
   render() {
-    let originPOIOptions = this.props.originPOIOptions
-    if (originPOIOptions) {
-      if (originPOIOptions.titleColor) {
-        originPOIOptions.titleColor = processColor(originPOIOptions.titleColor)
-      }
-      if (originPOIOptions.icon) {
-        let uri = Image.resolveAssetSource(originPOIOptions.icon.uri) || {uri: originPOIOptions.icon.uri};
-        originPOIOptions.icon = {uri: uri.uri}
-      }
-    }
-
-    let destinationPOIOptions = this.props.destinationPOIOptions
-    if (destinationPOIOptions) {
-      if (destinationPOIOptions.titleColor) {
-        destinationPOIOptions.titleColor = processColor(destinationPOIOptions.titleColor)
-      }
-      if (destinationPOIOptions.icon) {
-        let uri = Image.resolveAssetSource(destinationPOIOptions.icon.uri) || {uri: destinationPOIOptions.icon.uri};
-        destinationPOIOptions.icon = {uri: uri.uri}
-      }
-    }
+    let originPOIOptions = this._resolvePOIOptions(this.props.originPOIOptions)
+    let destinationPOIOptions = this._resolvePOIOptions(this.props.destinationPOIOptions)
 
     return <RMFDirectionsRenderer
       {...this.props}
@@ -175,6 +156,36 @@ class MFDirectionsRenderer extends React.Component {
       ref={this._ref}
       onPress={this._onPress}
     />;
+  }
+
+  /**
+   * Returns a converted copy of the POI options, never a modified original.
+   *
+   * Writing back into the prop broke twice over. React Native deep-freezes
+   * props it has handed to a native view in dev, so the second render threw
+   * "attempted to set the key `titleColor` ... has been frozen". And even
+   * unfrozen it was wrong: `processColor` turns '#1D4ED8' into a signed int,
+   * which is outside the range it accepts as input, so feeding its own output
+   * back in returns undefined and the colour silently disappears. Converting
+   * from the untouched prop every time avoids both.
+   */
+  _resolvePOIOptions(options) {
+    if (!options) {
+      return options
+    }
+
+    const resolved = {...options}
+
+    if (resolved.titleColor != null) {
+      resolved.titleColor = processColor(resolved.titleColor)
+    }
+
+    if (resolved.icon) {
+      let uri = Image.resolveAssetSource(resolved.icon.uri) || {uri: resolved.icon.uri};
+      resolved.icon = {uri: uri.uri}
+    }
+
+    return resolved
   }
 
   _ref(ref) {

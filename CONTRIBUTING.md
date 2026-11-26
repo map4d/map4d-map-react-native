@@ -12,38 +12,21 @@ yarn
 
 > While it's possible to use [`npm`](https://github.com/npm/cli), the tooling is built around [`yarn`](https://classic.yarnpkg.com/), so you'll have an easier time if you use `yarn` for development.
 
-While developing, you can run the demo apps to test your changes. Any changes you make in your library's JavaScript code will be reflected in the demo app without a rebuild. If you change any native code, then you'll need to rebuild the demo app.
+While developing, you can run the New Architecture demo to test your changes. Any changes you make in your library's JavaScript code will be reflected in the demo app without a rebuild. If you change any native code, then you'll need to rebuild the demo app.
 
-This repository currently has 2 demo apps:
-- `example`: legacy demo (React Native 0.71)
-- `example-new-arch`: new architecture demo (React Native 0.86)
-
-Run one demo at a time.
-
-Run legacy demo (`example`):
+Run the Fabric/TurboModule demo (`example`, React Native 0.86):
 
 ```sh
-yarn example start
-yarn example android
+yarn example:start
+yarn example:android
 # On macOS:
-yarn example ios
+yarn example:ios
 ```
 
-Run new architecture demo (`example-new-arch`):
-
-```sh
-yarn example:new start
-yarn example:new android
-# On macOS:
-yarn example:new ios
-```
-
-When switching between `example` and `example-new-arch`, restart Metro with cache reset to avoid stale module map issues:
+To clear Metro's module cache, run:
 
 ```sh
 yarn example start --reset-cache
-# or
-yarn example:new start --reset-cache
 ```
 
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
@@ -65,9 +48,9 @@ Remember to add tests for your change if possible. Run the unit tests by:
 yarn test
 ```
 
-To edit the Objective-C files, open `example/ios/Map4dMapExample.xcworkspace` in XCode and find the source files at `Pods > Development Pods > react-native-map4d-map`.
+To edit the Objective-C/Objective-C++ files, open `example/ios/Map4dMapExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > react-native-map4d-map`.
 
-To edit the Kotlin files, open `example/android` in Android studio and find the source files at `reactnativemap4dmap` under `Android`.
+To edit the Kotlin files, open `example/android` in Android Studio and find the source files at `reactnativemap4dmap` under `Android`.
 
 For New Architecture demo native files, open `example-new-arch/ios/Map4dMapExample.xcworkspace` in XCode or `example-new-arch/android` in Android Studio.
 
@@ -106,19 +89,15 @@ yarn release
 
 The `package.json` file contains various scripts for common tasks:
 
-- `yarn bootstrap`: setup root + legacy demo dependencies and legacy iOS pods.
-- `yarn bootstrap:new`: setup new architecture demo dependencies and iOS pods.
+- `yarn bootstrap`: set up root and example dependencies, then install iOS pods.
 - `yarn typescript`: type-check files with TypeScript.
 - `yarn lint`: lint files with ESLint.
 - `yarn test`: run unit tests with Jest.
 - `yarn example`: install dependencies in `example`.
-- `yarn example start`: start the Metro server for the example app.
-- `yarn example android`: run the example app on Android.
-- `yarn example ios`: run the example app on iOS.
-- `yarn example:new`: install dependencies for `example-new-arch`.
-- `yarn example:new:start`: start Metro for `example-new-arch`.
+- `yarn example:start`: start Metro for the example app.
+- `yarn example:android`: run the example app on Android.
+- `yarn example:ios`: run the example app on iOS.
 - `yarn pods`: install iOS pods for `example`.
-- `yarn pods:new`: install iOS pods for `example-new-arch`.
 
 ### Sending a pull request
 

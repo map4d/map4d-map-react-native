@@ -64,6 +64,14 @@ public class RMFMarker extends RMFFeature {
   private int width;
   private int height;
 
+  // The size requested for a data:/http(s):/file:/asset: icon, kept around so
+  // the async decode callback below can scale the bitmap it gets back — a
+  // Fresco ResizeOptions hint on the request is not reliably honored (it
+  // requires downsampling to be enabled, and even then only approximates the
+  // size), so the final bitmap is resized explicitly instead.
+  private int iconWidth;
+  private int iconHeight;
+
   private MFMarkerManager.Collection markerCollection;
 
   private final DraweeHolder<?> logoHolder;
@@ -85,6 +93,10 @@ public class RMFMarker extends RMFFeature {
               Bitmap bitmap = closeableStaticBitmap.getUnderlyingBitmap();
               if (bitmap != null) {
                 bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                if (iconWidth > 0 && iconHeight > 0 &&
+                    (bitmap.getWidth() != iconWidth || bitmap.getHeight() != iconHeight)) {
+                  bitmap = Bitmap.createScaledBitmap(bitmap, iconWidth, iconHeight, true);
+                }
                 iconBitmap = bitmap;
                 iconBitmapDescriptor = MFBitmapDescriptorFactory.fromBitmap(bitmap);
               }
@@ -136,6 +148,8 @@ public class RMFMarker extends RMFFeature {
     }
     else if (uri.startsWith("http://") || uri.startsWith("https://") ||
       uri.startsWith("file://") || uri.startsWith("asset://") || uri.startsWith("data:")) {
+      this.iconWidth = width;
+      this.iconHeight = height;
       ImageRequestBuilder builder = ImageRequestBuilder.newBuilderWithSource(Uri.parse(uri));
       if (width != 0 && height != 0) {
         builder.setResizeOptions(ResizeOptions.forDimensions(width, height));

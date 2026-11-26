@@ -9,7 +9,6 @@
 #import "RMFMarker.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTLog.h>
-#import <React/RCTImageView.h>
 #import <Map4dMap/Map4dMap.h>
 #import "RMFEventResponse.h"
 #import "RMFDummyView.h"
@@ -231,16 +230,19 @@
 }
 
 - (void)addObserver:(UIView*)view {
-  if ([view isKindOfClass:[RCTImageView class]]) {
+  // RCTImageView is unavailable when React Native is built with
+  // RCT_REMOVE_LEGACY_ARCH. Observe both the legacy wrapper (when present)
+  // and Fabric's underlying UIImageView without linking to the removed class.
+  Class legacyImageViewClass = NSClassFromString(@"RCTImageView");
+  BOOL isLegacyImageView = legacyImageViewClass != Nil && [view isKindOfClass:legacyImageViewClass];
+  if (isLegacyImageView || [view isKindOfClass:[UIImageView class]]) {
     [view addObserver:self forKeyPath:@"image" options:NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(_iconView)];
     [view addObserver:self forKeyPath:@"bounds" options:NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(_iconView)];
     [observables addObject:view];
   }
-  
-  NSArray<UIView *> *reactSubviews = [view reactSubviews];
-  for (int i = 0; i < reactSubviews.count; i++) {
-    UIView* view = [reactSubviews objectAtIndex:i];
-    [self addObserver:view];
+
+  for (UIView *subview in view.subviews) {
+    [self addObserver:subview];
   }
 }
 

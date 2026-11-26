@@ -5,7 +5,9 @@ import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.bridge.*;
 import com.facebook.react.uimanager.annotations.*;
 import com.facebook.react.common.MapBuilder;
-import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.facebook.react.uimanager.UIManagerHelper;
+import com.facebook.react.uimanager.events.Event;
+import com.facebook.react.uimanager.events.EventDispatcher;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import android.content.Context;
 public class RMFMapViewManager extends ViewGroupManager<RMFMapView> {
     private static final int k_animateCamera = 1;
     private static final int k_moveCamera = 2;
+  private static final int k_setMapStyle = 3;
     private static final int k_setMyLocationEnabled = 4;
     private static final int k_setShowsMyLocationButton = 5;
     private static final int k_setTime = 6;
@@ -75,6 +78,7 @@ public class RMFMapViewManager extends ViewGroupManager<RMFMapView> {
     HashMap<String, Integer> map = new HashMap();
     map.put("animateCamera", k_animateCamera);
     map.put("moveCamera", k_moveCamera);
+    map.put("setMapStyle", k_setMapStyle);
     map.put("setMyLocationEnabled", k_setMyLocationEnabled);
     map.put("showsMyLocationButton", k_setShowsMyLocationButton);
     map.put("setPOIsEnabled", k_setPOIsEnabled);
@@ -99,6 +103,9 @@ public class RMFMapViewManager extends ViewGroupManager<RMFMapView> {
       case k_moveCamera:
         map = args.getMap(0);
         view.moveCamera(map);
+        break;
+      case k_setMapStyle:
+        view.setMapStyle(args.getString(0));
         break;
       case k_setMyLocationEnabled:
         view.setMyLocationEnabled(args.getBoolean(0));
@@ -154,8 +161,51 @@ public class RMFMapViewManager extends ViewGroupManager<RMFMapView> {
   }
 
   void pushEvent(Context context1, View view, String name, WritableMap data) {
-    reactContext.getJSModule(RCTEventEmitter.class)
-        .receiveEvent(view.getId(), name, data);
+    // getJSModule(RCTEventEmitter) is unsupported under bridgeless, so events go out
+    // through the dispatcher that owns the target view instead.
+    EventDispatcher dispatcher =
+      UIManagerHelper.getEventDispatcherForReactTag(reactContext, view.getId());
+    if (dispatcher == null) {
+      return;
+    }
+
+    // The map view deliberately runs on a plain Activity context to dodge an SDK
+    // bug, so UIManagerHelper cannot read a surface off the view itself (it logs a
+    // SoftException when it tries). The caller hands us the ThemedReactContext instead.
+    int surfaceId = UIManagerHelper.getSurfaceId(context1);
+    if (surfaceId == -1) {
+      surfaceId = UIManagerHelper.getSurfaceId(reactContext);
+    }
+
+    dispatcher.dispatchEvent(new RMFEvent(surfaceId, view.getId(), name, data));
+  }
+
+  private static class RMFEvent extends Event<RMFEvent> {
+    private final String eventName;
+    private final WritableMap eventData;
+
+    RMFEvent(int surfaceId, int viewTag, String eventName, WritableMap eventData) {
+      super(surfaceId, viewTag);
+      this.eventName = eventName;
+      this.eventData = eventData;
+    }
+
+    @Override
+    public String getEventName() {
+      return eventName;
+    }
+
+    @Override
+    protected WritableMap getEventData() {
+      return eventData;
+    }
+
+    @Override
+    public boolean canCoalesce() {
+      // Every push used to reach JS one-for-one; dropping intermediate ones would
+      // lose discrete events such as presses and drag steps.
+      return false;
+    }
   }
 
   @Override

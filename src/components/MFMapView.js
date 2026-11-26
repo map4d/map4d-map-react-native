@@ -1,6 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {ViewPropTypes, ColorPropType} from 'deprecated-react-native-prop-types';
+import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+import {MFDirectionsRenderer} from './MFDirectionsRenderer';
+import {MFMarker} from './MFMarker';
+import {MFPolygon} from './MFPolygon';
 import {getMap4dMapNativeModule} from '../native/Map4dMapNativeModule';
 import {runViewManagerCommand} from '../native/ViewManagerCommand';
 import {
@@ -21,6 +24,28 @@ const CameraShape = PropTypes.shape({
 
 // if ViewPropTypes is not defined fall back to View.propType (to support RN < 0.44)
 const viewPropTypes = ViewPropTypes || View.propTypes;
+
+/**
+ * Identity of the route POIs, used as the renderer's key so that renaming an
+ * end of the route remounts it.
+ *
+ * The Android SDK reads a POI's title once, on the branch of setupStartAndEndPoint that
+ * creates that POI. Hand it a new title afterwards and setStartLabel does store
+ * it and does ask for an update, but the update path finds the POI already
+ * there and only repositions it — the label on screen stays whatever it was
+ * drawn with. Rebuilding the renderer is what gets the POI created again, and
+ * dropping it removes both POIs with it, so nothing is left behind.
+ *
+ * Only the titles go into the key. Positions the SDK does update in place, and
+ * keying on those would throw the drawn route away on every re-route — a mode
+ * change, say — for nothing.
+ */
+function resolveDirectionsKey(options) {
+  const origin = options?.originPOIOptions?.title ?? '';
+  const destination = options?.destinationPOIOptions?.title ?? '';
+
+  return `directions:${origin}|${destination}`;
+}
 
 const propTypes = {
   ...viewPropTypes,
@@ -151,11 +176,170 @@ class MFMapView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isReady: Platform.OS === 'ios',
+      isReady: false,
+      managedPolygons: {},
+      managedMarkers: {},
+      managedDirections: null,
+      mapFrame: null,
     };
 
     this._onMapReady = this._onMapReady.bind(this);
+    this._onMapLayout = this._onMapLayout.bind(this);
+    this._onPress = this._onPress.bind(this);
+    this._onDataSourceFeaturePress = this._onDataSourceFeaturePress.bind(this);
+    this._onCameraMove = this._onCameraMove.bind(this);
     this._ref = this._ref.bind(this);
+  }
+
+  _addPolygon(polygon) {
+    if (polygon == null || typeof polygon !== 'object') {
+      return null;
+    }
+
+    const id =
+      typeof polygon.id === 'string' && polygon.id.trim().length > 0
+        ? polygon.id
+        : 'polygon-highlight-id-default';
+
+    const _polygon = {
+      ...polygon,
+      id,
+    };
+
+    this.setState((prevState) => ({
+      managedPolygons: {
+        ...prevState.managedPolygons,
+        [id]: _polygon,
+      },
+    }));
+
+    return id;
+  }
+
+  _removePolygon(id) {
+    if (typeof id !== 'string' || id.trim().length === 0) {
+      return;
+    }
+
+    this.setState((prevState) => {
+      if (!prevState.managedPolygons[id]) {
+        return null;
+      }
+
+      const managedPolygons = {
+        ...prevState.managedPolygons,
+      };
+      delete managedPolygons[id];
+
+      return {
+        managedPolygons,
+      };
+    });
+  }
+
+  _clearManagedPolygons() {
+    this.setState({
+      managedPolygons: {},
+    });
+  }
+
+  /**
+   * Markers owned by the component itself rather than passed in as children,
+   * mirroring the managed polygons above.
+   */
+  _addMarker(marker) {
+    if (marker == null || typeof marker !== 'object') {
+      return null;
+    }
+
+    const id =
+      typeof marker.id === 'string' && marker.id.trim().length > 0
+        ? marker.id
+        : 'marker-managed-id-default';
+
+    const _marker = {
+      ...marker,
+      id,
+    };
+
+    this.setState((prevState) => ({
+      managedMarkers: {
+        ...prevState.managedMarkers,
+        [id]: _marker,
+      },
+    }));
+
+    return id;
+  }
+
+  _removeMarker(id) {
+    if (typeof id !== 'string' || id.trim().length === 0) {
+      return;
+    }
+
+    this.setState((prevState) => {
+      if (!prevState.managedMarkers[id]) {
+        return null;
+      }
+
+      const managedMarkers = {
+        ...prevState.managedMarkers,
+      };
+      delete managedMarkers[id];
+
+      return {
+        managedMarkers,
+      };
+    });
+  }
+
+  /**
+   * A route the component draws itself, in the same spirit as the managed
+   * polygons and markers above. `directions` is the raw `/sdk/route` response
+   * string, which the native renderer decodes on its own.
+   */
+  _setDirections(directions, options) {
+    if (typeof directions !== 'string' || directions.trim().length === 0) {
+      return;
+    }
+
+    this.setState({
+      managedDirections: {
+        directions,
+        options: options && typeof options === 'object' ? options : {},
+      },
+    });
+  }
+
+  /**
+   * Switches which of the drawn routes is the active one. The payload the
+   * renderer already holds is left alone: only the index changes.
+   */
+  _setDirectionsActiveIndex(index) {
+    this.setState((prevState) => {
+      const managed = prevState.managedDirections;
+
+      if (!managed || managed.options.activedIndex === index) {
+        return null;
+      }
+
+      return {
+        managedDirections: {
+          ...managed,
+          options: { ...managed.options, activedIndex: index },
+        },
+      };
+    });
+  }
+
+  _clearDirections() {
+    if (this.state.managedDirections == null) {
+      return;
+    }
+
+    this.setState({
+      managedDirections: null,
+    });
   }
 
   _onMapReady() {
@@ -165,6 +349,69 @@ class MFMapView extends React.Component {
         onMapReady();
       }
     });
+  }
+
+  /**
+   * The map's own frame within its parent. Subclasses draw overlays as siblings
+   * of the map, and a sibling cannot infer that frame from the parent: padding
+   * on the parent (a SafeAreaView with default edges, say) shifts the two apart.
+   * Measuring the map itself is the only account that always matches.
+   */
+  _onMapLayout(event) {
+    const { onLayout } = this.props;
+    if (onLayout) {
+      onLayout(event);
+    }
+
+    const layout = event?.nativeEvent?.layout;
+    if (!layout) {
+      return;
+    }
+
+    const next = {
+      x: layout.x,
+      y: layout.y,
+      width: layout.width,
+      height: layout.height,
+    };
+
+    this.setState((prevState) => {
+      const frame = prevState.mapFrame;
+      const unchanged =
+        frame != null &&
+        Math.abs(frame.x - next.x) < 1 &&
+        Math.abs(frame.y - next.y) < 1 &&
+        Math.abs(frame.width - next.width) < 1 &&
+        Math.abs(frame.height - next.height) < 1;
+
+      return unchanged ? null : { mapFrame: next };
+    });
+  }
+
+  _onPress(event) {
+    const { onPress } = this.props;
+    if (onPress) {
+      onPress(event);
+    }
+  }
+
+  _onDataSourceFeaturePress(event) {
+    const { onDataSourceFeaturePress } = this.props;
+    if (onDataSourceFeaturePress) {
+      onDataSourceFeaturePress(event);
+    }
+  }
+
+  /**
+   * Carries the camera the map moved to: `{center, zoom, bearing, tilt}`.
+   * Routed through here rather than straight from the props so a subclass can
+   * follow the camera without taking the callback away from its own user.
+   */
+  _onCameraMove(event) {
+    const { onCameraMove } = this.props;
+    if (onCameraMove) {
+      onCameraMove(event);
+    }
   }
 
   _ref(ref) {
@@ -194,6 +441,15 @@ class MFMapView extends React.Component {
       return this._runMap4dMapModuleMethod('getMyLocation', [this._getHandle()]);
     } else if (Platform.OS === 'ios') {
       return this._runCommand('getMyLocation', []);
+    }
+    return Promise.reject('Function not supported on this platform');
+  }
+
+  getMapStyle() {
+    if (Platform.OS === 'android') {
+      return this._runMap4dMapModuleMethod('getMapStyle', [this._getHandle()]);
+    } else if (Platform.OS === 'ios') {
+      return this._runCommand('getMapStyle', []);
     }
     return Promise.reject('Function not supported on this platform');
   }
@@ -340,12 +596,56 @@ class MFMapView extends React.Component {
 
   render() {
     let props;
+    const { children, ...restProps } = this.props;
+    const managedPolygons = Object.values(this.state.managedPolygons);
+    const managedMarkers = Object.values(this.state.managedMarkers);
 
     if (this.state.isReady) {
       props = {
         style: this.props.style,
         onMapReady: this._onMapReady,
-        ...this.props,
+        ...restProps,
+        onLayout: this._onMapLayout,
+        onPress: this._onPress,
+        onDataSourceFeaturePress: this._onDataSourceFeaturePress,
+        onCameraMove: this._onCameraMove,
+        children: (
+          <React.Fragment>
+            {children}
+            {managedPolygons.map((polygon) => (
+              <MFPolygon
+                key={polygon.id}
+                coordinates={polygon.coordinates}
+                holes={polygon.holes}
+                fillColor={polygon.fillColor}
+                strokeColor={polygon.strokeColor}
+                strokeWidth={polygon.strokeWidth}
+                zIndex={polygon.zIndex}
+              />
+            ))}
+            {this.state.managedDirections ? (
+              <MFDirectionsRenderer
+                key={resolveDirectionsKey(
+                  this.state.managedDirections.options
+                )}
+                directions={this.state.managedDirections.directions}
+                {...this.state.managedDirections.options}
+              />
+            ) : null}
+            {managedMarkers.map((marker) => (
+              <MFMarker
+                key={marker.id}
+                coordinate={marker.coordinate}
+                icon={marker.icon}
+                title={marker.title}
+                snippet={marker.snippet}
+                anchor={marker.anchor}
+                elevation={marker.elevation}
+                zIndex={marker.zIndex}
+              />
+            ))}
+          </React.Fragment>
+        ),
       };
     } else {
       props = {
