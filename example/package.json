@@ -29,5 +29,8 @@
     "@react-native/babel-preset": "0.86.0",
     "@react-native/metro-config": "0.86.0",
     "react-native-builder-bob": "^0.40.5"
+  },
+  "resolutions": {
+    "react-native-builder-bob/glob": "^14.0.2"
   }
 }

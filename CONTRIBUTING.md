@@ -4,6 +4,10 @@ We want this community to be friendly and respectful to each other. Please follo
 
 ## Development workflow
 
+Use Yarn 1.22.22 and Node.js 22.22.2+ (22.x), 24.15.0+ (24.x), or 26+ for development and releases. The release tools require these Node.js versions; `example/.node-version` selects Node.js 24.22.2.
+
+Both packages pin Bob's `glob` dependency to the patched 14.x line through scoped Yarn resolutions. Keep these resolutions until Bob supports a patched version directly. Run `yarn audit` and `yarn --cwd example audit` when updating dependencies.
+
 To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
 
 ```sh
