@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
 
   install_modules_dependencies(s)
   s.dependency "Map4dMap", "~> 3.3"
+  s.dependency "Map4dMapUtils", "~> 0.5"
 end
