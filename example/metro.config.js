@@ -18,6 +18,22 @@ const config = {
   // We need to make sure that only one version is loaded for peerDependencies
   // So we blacklist them at the root, and alias them to the versions in example's node_modules
   resolver: {
+    // Resolve peers from the app even when the library uses pnpm symlinks.
+    // extraNodeModules is only a fallback after hierarchical resolution.
+    resolveRequest: (context, moduleName, platform) => {
+      const isPeer = modules.some(
+        (name) => moduleName === name || moduleName.startsWith(`${name}/`)
+      );
+
+      return context.resolveRequest(
+        isPeer
+          ? { ...context, originModulePath: path.join(__dirname, 'index.tsx') }
+          : context,
+        moduleName,
+        platform
+      );
+    },
+
     blockList: [
       ...modules.map(
         (m) =>
