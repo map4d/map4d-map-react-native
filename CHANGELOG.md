@@ -1,3 +1,22 @@
+## 3.1.0
+
+### Added
+
+* Support React Native New Architecture with a `Map4dMap` TurboModule codegen spec and native module implementations on Android and iOS.
+* Resolve native modules through `TurboModuleRegistry`, with fallback to legacy `NativeModules`.
+* Add `getMapStyle()` to `MFMapView` and the native map modules.
+* Add internal helpers for managed polygons, markers, and directions, with map layout tracking for overlays.
+
+### Changed
+
+* [Android] Integrate the React Native Gradle plugin and generated codegen sources for New Architecture builds; raise default compile and target SDK versions to 33.
+* [iOS] Integrate React Native codegen dependencies in the library podspec.
+
+### Fixed
+
+* Route native view commands and Android events through APIs compatible with the New Architecture.
+* Improve native map method availability checks and iOS view lookup error handling.
+
 ## 3.0.0
 
 Changed the approach to 3D mode.

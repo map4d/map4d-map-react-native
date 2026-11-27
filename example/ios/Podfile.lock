@@ -1429,7 +1429,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-map4d-map (3.0.0):
+  - react-native-map4d-map (3.1.0):
     - hermes-engine
     - Map4dMap (~> 3.3)
     - Map4dMapUtils (~> 0.5)
@@ -2255,7 +2255,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: ce449ccdf3b80384415b925606be8a4bdcfc65d3
   React-microtasksnativemodule: 2eb3f49d0d8e77b5343455eccd057010b8d38b6b
   React-mutationobservernativemodule: f0a0d5ae9b51caf7becbeabf836d716cfedb6bf2
-  react-native-map4d-map: 019c9b8fdc04c1cb94a22504aa001d7ab6b30a12
+  react-native-map4d-map: dcaf2b4496badff23d88c2222628d3ff808b9d85
   react-native-safe-area-context: 02beb7e497cc76f97392ef5d77fccd9d9e3b2840
   React-NativeModulesApple: a092d89b58f635ebfab88048b0eda9fb516819fd
   React-networking: 968bbbe73590149feb1e72b2af4f6a68e4796ece

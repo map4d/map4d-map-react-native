@@ -1,6 +1,6 @@
 {
   "name": "react-native-map4d-map",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "packageManager": "yarn@1.22.22",
   "description": "Map4dMap SDK for React Native",
   "main": "lib/commonjs/index",

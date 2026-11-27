@@ -1,4 +1,7 @@
 # react-native-map4d-map
+[![map4d](https://img.shields.io/badge/map4d-map-orange)](https://map4d.vn/)
+[![platform](https://img.shields.io/badge/platform-reactnative-61dafb.svg)](https://reactnative.dev/)
+[![npm](https://img.shields.io/npm/v/react-native-map4d-map)](https://www.npmjs.com/package/react-native-map4d-map)
 
 Map4dMap SDK for React Native
 
@@ -8,50 +11,46 @@ Map4dMap SDK for React Native
 npm install react-native-map4d-map
 ```
 
-## TurboModule compatibility
+On iOS, install the native dependencies from your app's iOS directory:
 
-This library supports React Native New Architecture module resolution for `Map4dMap` by using `TurboModuleRegistry` with automatic fallback to `NativeModules`.
+```sh
+cd ios && pod install
+```
 
-The package now also includes a TurboModule codegen spec (`src/specs/NativeMap4dMap.js`) and `codegenConfig` in `package.json` so React Native apps can generate module bindings in New Architecture builds.
+Rebuild your Android or iOS app after installation so the native modules are included.
 
-What this means:
-- On React Native apps with New Architecture enabled, map native module lookup works with TurboModule resolution.
-- On older React Native versions, the library keeps using legacy bridge resolution.
-- No public JavaScript API changes are required for existing apps.
-- Native `Map4dMap` APIs (`getCamera`, `getBounds`, `getMyLocation`, `pointForCoordinate`, `coordinateForPoint`, `cameraForBounds`) are implemented in both Android and iOS modules to align with the TurboModule spec.
+## New Architecture compatibility
+
+The library includes a `Map4dMap` TurboModule codegen spec and native module implementations for Android and iOS. Native module lookup uses `TurboModuleRegistry` with a fallback to legacy `NativeModules` when the TurboModule is unavailable.
+
+Map views continue to use native view managers through React Native's interoperability layer. Existing apps can keep using the exported map components and methods.
 
 ## Usage
 
 ```javascript
-import {MFMapView} from 'react-native-map4d-map';
 import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet
-} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import {MFMapView} from 'react-native-map4d-map';
 
-function App() {
+export default function App() {
   return (
-    <>
-      <SafeAreaView style={styles.safeView}>
-        <MFMapView style={styles.container}/>
-      </SafeAreaView>
-    </>
+    <View style={styles.container}>
+      <MFMapView
+        style={styles.container}
+        mapType="roadmap"
+        showsBuildings={true}
+      />
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  safeView: {
-    flex: 1,
-  },
   container: {
     flex: 1,
   },
 });
-
-export default App;
 ```
 
 ## Samples
 
-https://github.com/map4d/react-native-samples
+<https://github.com/map4d/react-native-samples>
